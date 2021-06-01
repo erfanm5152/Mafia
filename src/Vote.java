@@ -1,8 +1,8 @@
 public class Vote {
 
-    private Person voter;
+    private String voterName;
 
-    public Vote(Person voter) {
-        this.voter = voter;
+    public Vote(String voterName) {
+        this.voterName = voterName;
     }
 }

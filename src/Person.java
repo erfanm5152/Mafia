@@ -2,13 +2,11 @@ import java.util.ArrayList;
 
 public class Person {
 
-    private String name;
     private int health;
     private Side side;
     private ArrayList<Vote> votes;
 
-    public Person(String name, Side side) {
-        this.name = name;
+    public Person(Side side) {
         this.side = side;
         this.health = 1;
         this.votes = new ArrayList<>();
@@ -22,9 +20,6 @@ public class Person {
         this.health--;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public int getHealth() {
         return health;

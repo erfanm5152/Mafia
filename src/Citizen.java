@@ -1,7 +1,7 @@
 public class Citizen extends Person {
 
-    public Citizen(String name) {
-        super(name, Side.CITIZEN);
+    public Citizen() {
+        super( Side.CITIZEN);
     }
 
 }

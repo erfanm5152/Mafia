@@ -1,6 +1,6 @@
 public class Doctor extends Citizen implements Capable{
-    public Doctor(String name) {
-        super(name);
+    public Doctor() {
+        super();
     }
 
     @Override

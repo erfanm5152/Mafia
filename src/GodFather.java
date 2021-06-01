@@ -1,7 +1,7 @@
 public class GodFather extends Mafia implements Capable{
 
-    public GodFather(String name) {
-        super(name);
+    public GodFather() {
+        super();
     }
 
     @Override

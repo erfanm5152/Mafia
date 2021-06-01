@@ -1,6 +1,6 @@
 public class DieHard extends Citizen implements Capable{
-    public DieHard(String name) {
-        super(name);
+    public DieHard() {
+        super();
         increaseHealth();
     }
 

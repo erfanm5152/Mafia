@@ -1,6 +1,6 @@
 public class Detective extends Citizen implements Capable{
-    public Detective(String name) {
-        super(name);
+    public Detective() {
+        super();
     }
 
     @Override

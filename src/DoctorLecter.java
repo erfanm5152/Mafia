@@ -1,7 +1,7 @@
 public class DoctorLecter extends Mafia implements Capable{
 
-    public DoctorLecter(String name) {
-        super(name);
+    public DoctorLecter( ) {
+        super();
     }
 
     @Override
