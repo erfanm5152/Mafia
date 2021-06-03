@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -6,7 +7,6 @@ import java.util.Scanner;
 public class Client {
     private Socket socket;
     private Scanner keyboard;
-    private String name;
     private Thread receive;
     private Thread send;
 
@@ -18,8 +18,6 @@ public class Client {
         try {
             this.socket = new Socket("127.0.0.1",port);
             System.out.println("vasl shod");
-            System.out.println("name ra vared konid : ");
-            name = keyboard.nextLine();
             receive = new Thread(new Receive(socket , this));
             send= new Thread(new Send(socket,this));
         } catch (IOException e) {
@@ -43,9 +41,6 @@ public class Client {
         return keyboard;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public Thread getReceive() {
         return receive;
@@ -58,10 +53,16 @@ public class Client {
 class Receive implements Runnable{
     private Socket socket;
     private Client client;
+    private Scanner scanner;
 
     public Receive(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
+        try {
+            this.scanner = new Scanner(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -69,6 +70,7 @@ class Receive implements Runnable{
         try {
             Scanner scanner =new Scanner(socket.getInputStream());
             while (true){
+                //todo اگر پیام شاکل بای بای و سرور بود از برنامه خارج شو
                 if (scanner.hasNextLine()){
                     System.out.println(scanner.nextLine());
                 }
@@ -81,24 +83,25 @@ class Receive implements Runnable{
 class Send implements Runnable{
     private Socket socket;
     private Client client;
+    private PrintWriter printWriter;
 
     public Send(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
+        try {
+            this.printWriter = new PrintWriter(socket.getOutputStream(), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void run() {
         Scanner scanner =new Scanner(System.in);
-        try {
-            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-            while (true) {
-                if (scanner.hasNextLine()) {
-                    pw.println(client.getName()+" : "+scanner.nextLine());
-                }
+        while (true) {
+            if (scanner.hasNextLine()) {
+                printWriter.println(scanner.nextLine());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

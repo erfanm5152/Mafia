@@ -10,10 +10,9 @@ public class TimerMe implements Runnable{
 
     @Override
     public void run() {
-        int time=0;
-        while (time != this.time) {
+        while (time != 0) {
             System.out.println("    "+time);
-            time++;
+            time--;
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -21,9 +20,11 @@ public class TimerMe implements Runnable{
             }
         }
         end = true;
+        System.out.println(123456);
     }
 
     public boolean isEnd() {
+        System.out.println(78910);
         return end;
     }
 }

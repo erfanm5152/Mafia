@@ -4,10 +4,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,10 +24,17 @@ public class GameServer {
 
     public void initialize() {
         if (numberOfPlayers < 5) {
-            sendToAll("tedad kam ast.");
+            sendToAll("Server: tedad kam ast.\nbye bye");
+            closeAll();
             System.exit(1);
         }
         persons = PersonFactory.createPersons(numberOfPlayers);
+    }
+
+    public void closeAll(){
+        for (Handler temp:clients) {
+            temp.closeSocket();
+        }
     }
 
     public synchronized void sendToAll(String msg) {
@@ -75,9 +79,10 @@ public class GameServer {
         ExecutorService pool = Executors.newCachedThreadPool();
         System.out.println("port : " + port);
         System.out.println("server montazer ast.");
-        TimerMe t = new TimerMe(200);
-        new Thread(t).start();
-        while (!t.isEnd()) {
+        TimerMe timerMe = new TimerMe(60);
+        Thread time = new Thread(timerMe);
+        time.start();
+        while (!timerMe.isEnd()) {
             Socket socket = welcomingSocket.accept();
             System.out.println("client vasl shod.");
             Handler client = new Handler(socket, "", this);
@@ -88,9 +93,27 @@ public class GameServer {
         }
         System.out.println("tamam");
         initialize();
+        distributionOfRoles(persons);
 
     }
 
+    public void distributionOfRoles(ArrayList<Person> persons){
+        ArrayList<Person> temp = persons;
+        Collections.shuffle(temp);
+        for (int i = 0 ; i<persons.size() ; i++) {
+            Person role=persons.get(i);
+            clients.get(i).setPerson(role);
+            sendMsg("naghshe shoma : "+ role.getClass().getName(),clients.get(i).getSocket());
+        }
+    }
+
+    public ArrayList<String> getNames(){
+        ArrayList<String> names = new ArrayList<>();
+        for (Handler temp:clients) {
+            names.add(temp.getName());
+        }
+        return names;
+    }
 
     public static void main(String[] args) {
         try {
@@ -107,30 +130,55 @@ class Handler implements Runnable {
     private Person person;
     private String name;
     private GameServer gameServer;
+    private Scanner scanner;
+    private PrintWriter printWriter;
 
     public Handler(Socket socket, String name, GameServer gameServer) {
         this.socket = socket;
         this.name = name;
         this.gameServer = gameServer;
+        try {
+            this.scanner = new Scanner(socket.getInputStream());
+            this.printWriter = new PrintWriter(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    public void closeSocket(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public void getNameFromClient(){
+        String name = null;
+        do {
+            gameServer.sendMsg("name ra vared konid : ",socket);
+            name=scanner.nextLine().strip();
+        }while (gameServer.getNames().contains(name));
+        setName(name);
+    }
 
     @Override
     public void run() {
-        try {
-            Scanner scanner = new Scanner(socket.getInputStream());
-            while (true) {
-                if (scanner.hasNextLine()) {
-                    String msg = scanner.nextLine();
-                    gameServer.sendToAll(this, msg);
-                    System.out.println(msg);
-                    if (name.equals("")){
-                        name=msg.split(":")[0].strip();
-                    }
-                }
+        getNameFromClient();
+        while (true) {
+            if (scanner.hasNextLine()) {
+                String msg = scanner.nextLine();
+                gameServer.sendToAll(this, name+" : "+msg);
+                System.out.println(msg);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
