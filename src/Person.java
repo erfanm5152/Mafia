@@ -2,6 +2,8 @@ import java.util.ArrayList;
 
 public class Person {
 
+    private boolean isMuted;
+    private boolean isAlive;
     private int health;
     private Side side;
     private ArrayList<Vote> votes;
@@ -10,6 +12,8 @@ public class Person {
         this.side = side;
         this.health = 1;
         this.votes = new ArrayList<>();
+        this.isMuted = false;
+        this.isAlive = true;
     }
 
     public void increaseHealth(){

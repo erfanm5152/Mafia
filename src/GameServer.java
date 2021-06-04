@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,25 +77,92 @@ public class GameServer {
     }
 
     public void startServer() throws IOException {
-        ExecutorService pool = Executors.newCachedThreadPool();
+//        ExecutorService pool = Executors.newCachedThreadPool();
         System.out.println("port : " + port);
         System.out.println("server montazer ast.");
-        TimerMe timerMe = new TimerMe(60);
-        Thread time = new Thread(timerMe);
-        time.start();
-        while (!timerMe.isEnd()) {
+//        System.out.println("tedad bazikon ha ra vared konid.");
+//        numberOfPlayers = new Scanner(System.in).nextInt();
+        int i=0;
+        numberOfPlayers = 1;
+//        TimerMe timerMe = new TimerMe(60);
+//        Thread time = new Thread(timerMe);
+//        time.start();
+//        while (!timerMe.isEnd()) {
+        while(i < numberOfPlayers){
             Socket socket = welcomingSocket.accept();
             System.out.println("client vasl shod.");
             Handler client = new Handler(socket, "", this);
+            if (i==0){
+                setNumberOfPlayers(client);
+            }
             clients.add(client);
-            numberOfPlayers++;
-            pool.execute(client);
+            new Thread(client).start();
             sendMsg("be server man khosh amdid.", client.getSocket());
+            i++;
         }
         System.out.println("tamam");
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         initialize();
         distributionOfRoles(persons);
+        gameLoop();
+    }
 
+    public void gameLoop(){
+        sendToAll(help());
+
+//        while (!finish()){
+        timer(10);
+            //voting time
+            //night
+//        }
+        stopAll();
+
+    }
+    public void stopAll(){
+        sendToAll("exit");
+//        System.exit(1);
+    }
+    public void timer(int time){
+        TimerMe timer = new TimerMe(time);
+        Thread timerMe =new Thread(timer);
+        timerMe.start();
+        try {
+            timerMe.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        while (timer.isEnd());
+
+    }
+
+    public void night(){
+        sendToAll("shab mishavad\n" +
+                "va hame be khab miravand.");
+    }
+
+    public void removeUnconnected(){
+        Iterator<Handler> iterator = clients.iterator();
+        while (iterator.hasNext()){
+            Handler temp = iterator.next();
+            if (!temp.isConnected()){
+                sendToAll(temp.getName() + "az bazi kharej shod.");
+                iterator.remove();
+            }
+        }
+    }
+
+    public String help(){
+        return "az hala be bad shoma be onvoan yek mafia ya shahrvand dar bazi hozor darid\n va bayad talash konid ke" +
+                "team shoma barande shavad.";
+    }
+
+    public void setNumberOfPlayers(Handler firstClient) {
+        sendMsg("tedad bazikon ha ra vared konid: ",firstClient.getSocket());
+        this. numberOfPlayers = Integer.parseInt(firstClient.getScanner().nextLine());
     }
 
     public void distributionOfRoles(ArrayList<Person> persons){
@@ -115,6 +183,33 @@ public class GameServer {
         return names;
     }
 
+    public boolean finish(){
+        if (numberOfMafia() == 0 || numberOfMafia() >= numberOfCitizen()){
+            return true;
+        }
+        return false;
+    }
+
+    public int numberOfCitizen(){
+        int counter=0;
+        for (Handler temp:clients) {
+            if (temp.getPerson() instanceof Citizen){
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public int numberOfMafia(){
+        int counter=0;
+        for (Handler temp:clients) {
+            if (temp.getPerson() instanceof Mafia){
+                counter++;
+            }
+        }
+        return counter;
+    }
+
     public static void main(String[] args) {
         try {
             new GameServer().startServer();
@@ -132,11 +227,13 @@ class Handler implements Runnable {
     private GameServer gameServer;
     private Scanner scanner;
     private PrintWriter printWriter;
+    private boolean exit;
 
     public Handler(Socket socket, String name, GameServer gameServer) {
         this.socket = socket;
         this.name = name;
         this.gameServer = gameServer;
+        this.exit =false;
         try {
             this.scanner = new Scanner(socket.getInputStream());
             this.printWriter = new PrintWriter(socket.getOutputStream());
@@ -173,13 +270,28 @@ class Handler implements Runnable {
     @Override
     public void run() {
         getNameFromClient();
-        while (true) {
+        while (!exit) {
             if (scanner.hasNextLine()) {
                 String msg = scanner.nextLine();
-                gameServer.sendToAll(this, name+" : "+msg);
+                checkMsg(msg);
                 System.out.println(msg);
             }
         }
+    }
+    public void checkMsg(String msg){
+        switch (msg){
+            default :
+                Date date = new Date();
+                gameServer.sendToAll(this, name+" : "+msg
+                +"\t("+date.getHours()+":"+date.getMinutes()+")");
+        }
+    }
+    public boolean isConnected(){
+        return socket.isConnected();
+    }
+
+    public Scanner getScanner() {
+        return scanner;
     }
 
     public Socket getSocket() {

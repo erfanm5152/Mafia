@@ -20,11 +20,9 @@ public class TimerMe implements Runnable{
             }
         }
         end = true;
-        System.out.println(123456);
     }
 
     public boolean isEnd() {
-        System.out.println(78910);
         return end;
     }
 }

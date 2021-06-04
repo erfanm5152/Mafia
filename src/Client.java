@@ -54,10 +54,12 @@ class Receive implements Runnable{
     private Socket socket;
     private Client client;
     private Scanner scanner;
+    private boolean exit;
 
     public Receive(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
+        this.exit =false;
         try {
             this.scanner = new Scanner(socket.getInputStream());
         } catch (IOException e) {
@@ -69,25 +71,41 @@ class Receive implements Runnable{
     public void run() {
         try {
             Scanner scanner =new Scanner(socket.getInputStream());
-            while (true){
-                //todo اگر پیام شاکل بای بای و سرور بود از برنامه خارج شو
+            while (!exit){
+                //todo اگر پیام شامل بای بای و سرور بود از برنامه خارج شو
                 if (scanner.hasNextLine()){
-                    System.out.println(scanner.nextLine());
+                    String msg = scanner.nextLine();
+                    checkMsg(msg);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    public void checkMsg(String msg){
+        switch (msg){
+            case "exit":
+                //todo set kardan boolean exit ba false
+
+            default:
+                System.out.println(msg);
+        }
+    }
+
+    public void setExit(boolean exit) {
+        this.exit = exit;
+    }
 }
 class Send implements Runnable{
     private Socket socket;
     private Client client;
+    private boolean exit;
     private PrintWriter printWriter;
 
     public Send(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
+        this.exit =false;
         try {
             this.printWriter = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
@@ -98,7 +116,7 @@ class Send implements Runnable{
     @Override
     public void run() {
         Scanner scanner =new Scanner(System.in);
-        while (true) {
+        while (!exit) {
             if (scanner.hasNextLine()) {
                 printWriter.println(scanner.nextLine());
             }
