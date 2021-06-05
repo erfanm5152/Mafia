@@ -1,13 +1,10 @@
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Time;
+
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 
 public class GameServer {
 
@@ -26,7 +23,7 @@ public class GameServer {
     public void initialize() {
         if (numberOfPlayers < 5) {
             sendToAll("Server: tedad kam ast.\nbye bye");
-            closeAll();
+            stopAll();
             System.exit(1);
         }
         persons = PersonFactory.createPersons(numberOfPlayers);
@@ -34,31 +31,26 @@ public class GameServer {
 
     public void closeAll(){
         for (Handler temp:clients) {
-            temp.closeSocket();
+            temp.closAll();
         }
     }
 
     public synchronized void sendToAll(String msg) {
         for (Handler temp : clients) {
-            sendMsg(msg, temp.getSocket());
+            sendMsg(msg, temp);
         }
     }
 
     public synchronized void sendToAll(Handler sender, String msg) {
         for (Handler temp : clients) {
             if (!temp.equals(sender)) {
-                sendMsg(msg, temp.getSocket());
+                sendMsg(msg, temp);
             }
         }
     }
 
-    public synchronized void sendMsg(String msg, Socket socket) {
-        try {
-            PrintWriter outputStream = new PrintWriter((socket.getOutputStream()), true);
-            outputStream.println(msg);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public synchronized void sendMsg(String msg, Handler client) {
+        client.getPrintWriter().println(msg);
     }
 
     private void setServerSocket() {
@@ -97,7 +89,7 @@ public class GameServer {
             }
             clients.add(client);
             new Thread(client).start();
-            sendMsg("be server man khosh amdid.", client.getSocket());
+            sendMsg("be server man khosh amdid.", client);
             i++;
         }
         System.out.println("tamam");
@@ -115,8 +107,12 @@ public class GameServer {
         sendToAll(help());
 
 //        while (!finish()){
-        timer(10);
-            //voting time
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //voting time
             //night
 //        }
         stopAll();
@@ -124,7 +120,8 @@ public class GameServer {
     }
     public void stopAll(){
         sendToAll("exit");
-//        System.exit(1);
+        closeAll();
+        System.exit(1);
     }
     public void timer(int time){
         TimerMe timer = new TimerMe(time);
@@ -161,7 +158,7 @@ public class GameServer {
     }
 
     public void setNumberOfPlayers(Handler firstClient) {
-        sendMsg("tedad bazikon ha ra vared konid: ",firstClient.getSocket());
+        sendMsg("tedad bazikon ha ra vared konid: ",firstClient);
         this. numberOfPlayers = Integer.parseInt(firstClient.getScanner().nextLine());
     }
 
@@ -171,7 +168,7 @@ public class GameServer {
         for (int i = 0 ; i<persons.size() ; i++) {
             Person role=persons.get(i);
             clients.get(i).setPerson(role);
-            sendMsg("naghshe shoma : "+ role.getClass().getName(),clients.get(i).getSocket());
+            sendMsg("naghshe shoma : "+ role.getClass().getName(),clients.get(i));
         }
     }
 
@@ -236,19 +233,12 @@ class Handler implements Runnable {
         this.exit =false;
         try {
             this.scanner = new Scanner(socket.getInputStream());
-            this.printWriter = new PrintWriter(socket.getOutputStream());
+            this.printWriter = new PrintWriter(socket.getOutputStream(),true);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void closeSocket(){
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -261,7 +251,7 @@ class Handler implements Runnable {
     public void getNameFromClient(){
         String name = null;
         do {
-            gameServer.sendMsg("name ra vared konid : ",socket);
+            printWriter.println("name ra vared konid : ");
             name=scanner.nextLine().strip();
         }while (gameServer.getNames().contains(name));
         setName(name);
@@ -298,6 +288,10 @@ class Handler implements Runnable {
         return socket;
     }
 
+    public void setExit(boolean exit) {
+        this.exit = exit;
+    }
+
     public Person getPerson() {
         return person;
     }
@@ -306,4 +300,18 @@ class Handler implements Runnable {
         return name;
     }
 
+    public PrintWriter getPrintWriter() {
+        return printWriter;
+    }
+
+    public void closAll(){
+        setExit(true);
+        scanner.close();
+        printWriter.close();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

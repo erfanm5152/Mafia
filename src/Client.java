@@ -7,8 +7,8 @@ import java.util.Scanner;
 public class Client {
     private Socket socket;
     private Scanner keyboard;
-    private Thread receive;
-    private Thread send;
+    private Runnable receive;
+    private Runnable send;
 
     public Client() {
         keyboard = new Scanner(System.in);
@@ -18,16 +18,19 @@ public class Client {
         try {
             this.socket = new Socket("127.0.0.1",port);
             System.out.println("vasl shod");
-            receive = new Thread(new Receive(socket , this));
-            send= new Thread(new Send(socket,this));
+            receive =new Receive(socket , this);
+//            send= new Thread(new Send(socket,this));
+            send = new Send(socket,this);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void start(){
-        receive.start();
-        send.start();
+//        receive.start();
+        new Thread(receive).start();
+//        send.start();
+        new Thread(send).start();
     }
 
     public static void main(String[] args) {
@@ -42,12 +45,23 @@ public class Client {
     }
 
 
-    public Thread getReceive() {
+    public Runnable getReceive() {
         return receive;
     }
 
-    public Thread getSend() {
+    public Runnable getSend() {
         return send;
+    }
+
+    public void sendExit(){
+        ((Send)send).stop();
+    }
+    public void closeSocket(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 class Receive implements Runnable{
@@ -69,8 +83,6 @@ class Receive implements Runnable{
 
     @Override
     public void run() {
-        try {
-            Scanner scanner =new Scanner(socket.getInputStream());
             while (!exit){
                 //todo اگر پیام شامل بای بای و سرور بود از برنامه خارج شو
                 if (scanner.hasNextLine()){
@@ -78,22 +90,30 @@ class Receive implements Runnable{
                     checkMsg(msg);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     public void checkMsg(String msg){
         switch (msg){
             case "exit":
                 //todo set kardan boolean exit ba false
-
+                exit();
+                break;
             default:
                 System.out.println(msg);
         }
     }
+    public void exit(){
+        client.sendExit();
+        stop();
+        client.closeSocket();
+        System.exit(1);
+    }
 
     public void setExit(boolean exit) {
         this.exit = exit;
+    }
+    public void stop(){
+        this.exit=true;
+        scanner.close();
     }
 }
 class Send implements Runnable{
@@ -121,5 +141,17 @@ class Send implements Runnable{
                 printWriter.println(scanner.nextLine());
             }
         }
+    }
+
+    public void setExit(boolean exit) {
+        this.exit = exit;
+        if (exit){
+            printWriter.close();
+        }
+    }
+    public void stop(){
+        this.exit = true;
+        this.printWriter.close();
+
     }
 }
