@@ -45,7 +45,6 @@ public class PersonFactory {
                     temp.add(new Doctor());
                     temp.add(new GodFather());
                     temp.add(new Citizen());
-                    temp.add(new Citizen());
                     temp.add(new Mafia());
                     temp.add(new Sniper());
                     temp.add(new DoctorLecter());
@@ -57,7 +56,6 @@ public class PersonFactory {
                     temp.add(new Detective());
                     temp.add(new Doctor());
                     temp.add(new GodFather());
-                    temp.add(new Citizen());
                     temp.add(new Citizen());
                     temp.add(new Mafia());
                     temp.add(new Sniper());
@@ -75,14 +73,17 @@ public class PersonFactory {
                     temp.add(new DoctorLecter());
                     temp.add(new Psychologist());
                     temp.add(new DieHard());
+                    temp.add(new Mayor());
                     for (int i = 0; i <(number/3)-2 ; i++) {
                         temp.add(new Mafia());
                     }
-                    for (int i = 0; i <number - temp.size() ; i++) {
+                    int size=temp.size();
+                    for (int i = 0; i <number -size  ; i++) {
                         temp.add(new Citizen());
                     }
                     break;
             }
     return temp;
     }
+
 }

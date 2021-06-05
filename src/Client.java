@@ -84,7 +84,6 @@ class Receive implements Runnable{
     @Override
     public void run() {
             while (!exit){
-                //todo اگر پیام شامل بای بای و سرور بود از برنامه خارج شو
                 if (scanner.hasNextLine()){
                     String msg = scanner.nextLine();
                     checkMsg(msg);
@@ -92,14 +91,16 @@ class Receive implements Runnable{
             }
     }
     public void checkMsg(String msg){
-        switch (msg){
-            case "exit":
-                //todo set kardan boolean exit ba false
-                exit();
-                break;
-            default:
-                System.out.println(msg);
-        }
+       if (msg.equals("exit")) {
+           exit();
+       }else if (msg.contains("players:")){
+           ((Send)client.getSend()).getPrintWriter().println("VoTe");
+           System.out.println(msg);
+       }
+       else {
+           System.out.println(msg);
+       }
+
     }
     public void exit(){
         client.sendExit();
@@ -153,5 +154,9 @@ class Send implements Runnable{
         this.exit = true;
         this.printWriter.close();
 
+    }
+
+    public PrintWriter getPrintWriter() {
+        return printWriter;
     }
 }

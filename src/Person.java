@@ -1,4 +1,7 @@
+import jdk.jshell.PersistentSnippet;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Person {
 
@@ -32,8 +35,33 @@ public class Person {
     public Side getSide() {
         return side;
     }
+    public void addVote(String voterName){
+        votes.add(new Vote(voterName));
+    }
+
+    public void removeVote(String voterName){
+        Iterator<Vote> iterator = votes.iterator();
+        while (iterator.hasNext()){
+            Vote vote = iterator.next();
+            if (vote.getVoterName().equals(voterName)){
+                iterator.remove();
+            }
+        }
+    }
 
     public ArrayList<Vote> getVotes() {
         return votes;
     }
+
+    public int sizeOfVotes(){
+        return votes.size();
+    }
+    public void refreshVotes(){
+        Iterator<Vote> iterator = votes.iterator();
+        while (iterator.hasNext()){
+            iterator.next();
+            iterator.remove();
+        }
+    }
+
 }
