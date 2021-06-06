@@ -64,4 +64,19 @@ public class Person {
         }
     }
 
+    public void setAlive(boolean alive) {
+        isAlive = alive;
+    }
+
+    public int numberOfVotes(){
+        return votes.size();
+    }
+
+    public boolean isMuted() {
+        return isMuted;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
 }

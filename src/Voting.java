@@ -17,7 +17,9 @@ public class Voting {
         gameServer.sendToAll("players: "+gameServer.getNames().toString()+"\t(agar ray nemidahid baraye baz shodan" +
                 "ghofl safhe enter ra feshar dahid)");
         for (Handler handler: gameServer.getClients()) {
-           pool.execute(new VoteThread(handler,gameServer));
+            if (handler.getPerson().isAlive()) {
+                pool.execute(new VoteThread(handler, gameServer));
+            }
         }
         try {
             Thread.sleep(30000);

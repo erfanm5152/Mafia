@@ -13,11 +13,13 @@ public class GameServer {
     private ServerSocket welcomingSocket;
     private ArrayList<Handler> clients;
     private ArrayList<Person> persons;
+    private boolean isValidVoting;
 
     public GameServer() {
         setServerSocket();
         clients = new ArrayList<>();
         persons = new ArrayList<>();
+        this.isValidVoting = true;
     }
 
     public void initialize() {
@@ -103,8 +105,8 @@ public class GameServer {
 
     public void gameLoop() {
         sendToAll(help());
-        int i=0;
         while (!finish()) {
+            refreshVotes();
             try {
                 Thread.sleep(20000);// zaman sohbat karddan
             } catch (InterruptedException e) {
@@ -113,10 +115,53 @@ public class GameServer {
             System.out.println("aaaaaaaaaaaaaaaa");
             //voting time
             new Voting(this).startVoting();
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            if (isValidVoting){
+                votedDeath();
+            }else {
+                sendToAll("mayor ray giri ra molgha kard.");
+            }
             //night
         }
         stopAll();
+    }
 
+    public void votedDeath(){
+        ArrayList<Handler> voted = votedClients();
+        Random random =new Random();
+        Handler handler = voted.get(random.nextInt(voted.size()));
+        sendToAll(handler.getName()+" ba ray giri kharej shod.");
+        handler.getPerson().setAlive(false);
+        sendMsg("baraye khoroj az bazi \"exit\" ra vared konid.",handler);
+    }
+
+    public ArrayList<Handler> votedClients(){
+        ArrayList<Handler> temp= new ArrayList<>();
+        int maxVote=0;
+
+        for (Handler handler: clients) {
+            if (handler.getPerson().isAlive()){
+                if (handler.getPerson().numberOfVotes() > maxVote){
+                    maxVote=handler.getPerson().numberOfVotes();
+                }
+            }
+        }
+        for (Handler handler : clients) {
+            if (handler.getPerson().numberOfVotes() == maxVote && handler.getPerson().isAlive()){
+                temp.add(handler);
+            }
+        }
+        return temp;
+    }
+
+    public void refreshVotes(){
+        for (Handler temp :clients) {
+            temp.getPerson().refreshVotes();
+        }
     }
 
     public void voting(){
@@ -178,7 +223,9 @@ public class GameServer {
     public ArrayList<String> getNames() {
         ArrayList<String> names = new ArrayList<>();
         for (Handler temp : clients) {
-            names.add(temp.getName());
+            if (temp.getPerson()==null||temp.getPerson().isAlive()) {
+                names.add(temp.getName());
+            }
         }
         return names;
     }
@@ -197,7 +244,7 @@ public class GameServer {
     public int numberOfCitizen() {
         int counter = 0;
         for (Handler temp : clients) {
-            if (temp.getPerson() instanceof Citizen) {
+            if (temp.getPerson() instanceof Citizen && temp.getPerson().isAlive()) {
                 counter++;
             }
         }
@@ -207,7 +254,7 @@ public class GameServer {
     public int numberOfMafia() {
         int counter = 0;
         for (Handler temp : clients) {
-            if (temp.getPerson() instanceof Mafia) {
+            if (temp.getPerson() instanceof Mafia && temp.getPerson().isAlive()) {
                 counter++;
             }
         }
@@ -221,7 +268,9 @@ public class GameServer {
     public synchronized String getVotes(){
         String temp="";
         for (Handler client:clients) {
-            temp+=client.getName()+" "+client.getPerson().getVotes()+"\n";
+            if (client.getPerson().isAlive()) {
+                temp += client.getName() + " " + client.getPerson().getVotes() + "\n";
+            }
         }
         return temp;
     }
@@ -237,6 +286,9 @@ public class GameServer {
         for (Handler temp:clients) {
             temp.getPerson().removeVote(client.getName());
         }
+    }
+    public void removeClient(Handler client){
+        clients.remove(client);
     }
 
     public static void main(String[] args) {
@@ -303,14 +355,18 @@ class Handler implements Runnable {
         if (isFirst) {
             getNameFromClient();
         }
-        while (!exit) {
-            while (isScan) {
-                if (scanner.hasNextLine()) {
-                    String msg = scanner.nextLine();
-                    checkMsg(msg);
-                    System.out.println(msg);
+        try {
+            while (!exit) {
+                while (isScan) {
+                    if (scanner.hasNextLine()) {
+                        String msg = scanner.nextLine();
+                        checkMsg(msg);
+                        System.out.println(msg);
+                    }
                 }
             }
+        }catch (IllegalStateException e){
+            System.out.println(getName()+ "az bazi kharej shod.");
         }
     }
 
@@ -319,11 +375,17 @@ class Handler implements Runnable {
             isScan=false;
         }else if (msg.equals("spurious vote")){
 
+        }else if (msg.equals("exit")){
+            gameServer.removeVote(this);
+            printWriter.println("exit");
+            closAll();
         }
         else {
-            Date date = new Date();
-            gameServer.sendToAll(this, name + " : " + msg
-                    + "\t(" + date.getHours() + ":" + date.getMinutes() + ")");
+            if ( person==null || (person.isAlive()&& !person.isMuted())) {
+                Date date = new Date();
+                gameServer.sendToAll(this, name + " : " + msg
+                        + "\t(" + date.getHours() + ":" + date.getMinutes() + ")");
+            }
         }
     }
     public void vote(String msg){
