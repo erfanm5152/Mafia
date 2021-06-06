@@ -317,7 +317,10 @@ class Handler implements Runnable {
     public void checkMsg(String msg) {
         if (msg.equals("VoTe")){
             isScan=false;
-        }else {
+        }else if (msg.equals("spurious vote")){
+
+        }
+        else {
             Date date = new Date();
             gameServer.sendToAll(this, name + " : " + msg
                     + "\t(" + date.getHours() + ":" + date.getMinutes() + ")");

@@ -96,6 +96,8 @@ class Receive implements Runnable{
        }else if (msg.contains("players:")){
            ((Send)client.getSend()).getPrintWriter().println("VoTe");
            System.out.println(msg);
+       }else if (msg.equals("spurious vote")){
+           ((Send)client.getSend()).getPrintWriter().println("spurious vote");
        }
        else {
            System.out.println(msg);
