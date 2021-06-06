@@ -35,7 +35,7 @@ public class Person {
     public Side getSide() {
         return side;
     }
-    public void addVote(String voterName){
+    public synchronized void addVote(String voterName){
         votes.add(new Vote(voterName));
     }
 

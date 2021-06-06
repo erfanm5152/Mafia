@@ -14,8 +14,7 @@ public class Voting {
     public synchronized void startVoting(){
         ExecutorService pool = Executors.newCachedThreadPool();
         gameServer.sendToAll("zamane ray giri fara resid. ");
-        gameServer.sendToAll("players: "+gameServer.getNames().toString()+"\t(agar ray nemidahid baraye baz shodan" +
-                "ghofl safhe enter ra feshar dahid)");
+        gameServer.sendToLives("players: "+gameServer.getNames().toString());
         for (Handler handler: gameServer.getClients()) {
             if (handler.getPerson().isAlive()) {
                 pool.execute(new VoteThread(handler, gameServer));
@@ -30,9 +29,12 @@ public class Voting {
         gameServer.printVoteList();
         gameServer.sendToAll("spurious vote");
         for (Handler temp: gameServer.getClients()) {
+            temp.setExit(true);
             Handler newHandler = new Handler(temp);
             newHandlers.add(newHandler);
+            if (temp.isConnected()){
             new Thread(newHandler).start();
+            }
         }
         gameServer.setClients(newHandlers);
     }

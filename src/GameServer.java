@@ -3,6 +3,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import java.net.SocketException;
 import java.util.*;
 
 
@@ -52,7 +53,9 @@ public class GameServer {
     }
 
     public synchronized void sendMsg(String msg, Handler client) {
-        client.getPrintWriter().println(msg);
+        if (client.isConnected()) {
+            client.getPrintWriter().println(msg);
+        }
     }
 
     private void setServerSocket() {
@@ -64,6 +67,13 @@ public class GameServer {
                 e.printStackTrace();
             }
         } while (welcomingSocket == null);
+    }
+    public void sendToLives(String msg){
+        for (Handler handler:clients) {
+            if (handler.getPerson().isAlive() && handler.isConnected()){
+                sendMsg(msg,handler);
+            }
+        }
     }
 
     private void setPort() {
@@ -115,11 +125,11 @@ public class GameServer {
             System.out.println("aaaaaaaaaaaaaaaa");
             //voting time
             new Voting(this).startVoting();
-//            try {
-//                Thread.sleep(10000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (isValidVoting){
                 votedDeath();
             }else {
@@ -312,6 +322,7 @@ class Handler implements Runnable {
     private boolean exit;
     private boolean isScan;
     private boolean isFirst;
+    private boolean isConnected;
     public Handler(Socket socket, String name, GameServer gameServer) {
         this.socket = socket;
         this.name = name;
@@ -319,10 +330,14 @@ class Handler implements Runnable {
         this.exit = false;
         this.isScan=true;
         this.isFirst = true;
+        this.isConnected = true;
         try {
             this.scanner = new Scanner(socket.getInputStream());
             this.printWriter = new PrintWriter(socket.getOutputStream(), true);
-        } catch (IOException e) {
+        }catch (SocketException e){
+            isConnected =false;
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -331,6 +346,7 @@ class Handler implements Runnable {
         this(handler.getSocket(), handler.getName(), handler.gameServer);
         this.person = handler.person;
         this.isFirst =false;
+        this.isConnected=handler.isConnected();
     }
 
     public void setName(String name) {
@@ -355,19 +371,19 @@ class Handler implements Runnable {
         if (isFirst) {
             getNameFromClient();
         }
-        try {
+//        try {
             while (!exit) {
                 while (isScan) {
-                    if (scanner.hasNextLine()) {
+                    if (isConnected && scanner.hasNextLine()) {
                         String msg = scanner.nextLine();
                         checkMsg(msg);
                         System.out.println(msg);
                     }
                 }
             }
-        }catch (IllegalStateException e){
-            System.out.println(getName()+ "az bazi kharej shod.");
-        }
+//        }catch (IllegalStateException e){
+//            System.out.println(getName()+ "az bazi kharej shod.");
+//        }
     }
 
     public void checkMsg(String msg) {
@@ -376,7 +392,7 @@ class Handler implements Runnable {
         }else if (msg.equals("spurious vote")){
 
         }else if (msg.equals("exit")){
-            gameServer.removeVote(this);
+//            gameServer.removeVote(this);
             printWriter.println("exit");
             closAll();
         }
@@ -407,7 +423,10 @@ class Handler implements Runnable {
     }
 
     public boolean isConnected() {
-        return socket.isConnected();
+        if (!socket.isConnected()){
+            return false;
+        }
+        return isConnected;
     }
 
     public Scanner getScanner() {
@@ -449,10 +468,17 @@ class Handler implements Runnable {
         this.scanner = scanner;
     }
 
+
     public void closAll() {
+        this.isConnected=false;
         setExit(true);
-        scanner.close();
-        printWriter.close();
+        if (scanner !=null){
+            scanner.close();
+        }
+
+        if (printWriter!=null) {
+            printWriter.close();
+        }
         try {
             socket.close();
         } catch (IOException e) {
