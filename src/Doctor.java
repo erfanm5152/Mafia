@@ -7,4 +7,9 @@ public class Doctor extends Citizen implements Capable{
     public void move() {
 
     }
+
+    @Override
+    public String toString() {
+        return "Doctor";
+    }
 }

@@ -99,14 +99,25 @@ public class GameServer {
             i++;
         }
         System.out.println("tamam");
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        startGame();
+    }
+    public void startGame(){
+        while (true){
+            if (isStart()){
+                System.out.println("STRT");
+                break;
+            }
         }
         initialize();
         distributionOfRoles(persons);
         gameLoop();
+    }
+    public boolean isStart(){
+        boolean temp=true;
+        for (Handler handler:clients) {
+            temp = temp && handler.isStart();
+        }
+        return temp;
     }
 
     public void setClients(ArrayList<Handler> clients) {
@@ -122,9 +133,9 @@ public class GameServer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("aaaaaaaaaaaaaaaa");
             //voting time
             new Voting(this).startVoting();
+            //todo چک شود که شهردار در بازی هست یا خیر و سپس این اسلیپ در صورت بودن شهردار اجرا شود
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
@@ -135,13 +146,45 @@ public class GameServer {
             }else {
                 sendToAll("mayor ray giri ra molgha kard.");
             }
+            if (finish()){
+                break;
+            }
             //night
         }
+        end();
         stopAll();
     }
+    public boolean isRoleInGame(String roleName){
+        for (Handler handler:clients) {
+            if (handler.getPerson().toString().equals(roleName)){
+                return true;
+            }
+        }
+        return false;
+    }
 
+    public void end(){
+        sendToAll(namesAndRoles());
+        if (winCitizens()){
+            sendToAll("shahr piroz shod !!!");
+        }
+        if (winMafia()){
+            sendToAll("Mafia shahr ra shekast dad!!!");
+        }
+    }
+    public String namesAndRoles(){
+        String temp="";
+        for (Handler handler:clients) {
+            temp+=handler.getName()+" : "+ handler.getPerson().toString()+"\n";
+        }
+        return temp;
+    }
     public void votedDeath(){
         ArrayList<Handler> voted = votedClients();
+        if (voted.get(0).getPerson().numberOfVotes()==0){
+            sendToAll("kasi az bazi kharej nashod.");
+            return;
+        }
         Random random =new Random();
         Handler handler = voted.get(random.nextInt(voted.size()));
         sendToAll(handler.getName()+" ba ray giri kharej shod.");
@@ -225,7 +268,7 @@ public class GameServer {
         for (int i = 0; i < persons.size(); i++) {
             Person role = persons.get(i);
             clients.get(i).setPerson(role);
-            sendMsg("naghshe shoma : " + role.getClass().getName(), clients.get(i));
+            sendMsg("naghshe shoma : " + role.toString(), clients.get(i));
         }
     }
 
@@ -245,7 +288,19 @@ public class GameServer {
     }
 
     public boolean finish() {
-        if (numberOfMafia() == 0 || numberOfMafia() >= numberOfCitizen()) {
+        if (winCitizens() || winMafia()) {
+            return true;
+        }
+        return false;
+    }
+    public boolean winCitizens(){
+        if (numberOfMafia() == 0){
+            return true;
+        }
+        return false;
+    }
+    public boolean winMafia(){
+        if (numberOfMafia()>= numberOfCitizen()){
             return true;
         }
         return false;
@@ -319,6 +374,7 @@ class Handler implements Runnable {
     private GameServer gameServer;
     private Scanner scanner;
     private PrintWriter printWriter;
+    private boolean isStart;
     private boolean exit;
     private boolean isScan;
     private boolean isFirst;
@@ -327,6 +383,7 @@ class Handler implements Runnable {
         this.socket = socket;
         this.name = name;
         this.gameServer = gameServer;
+        this.isStart=false;
         this.exit = false;
         this.isScan=true;
         this.isFirst = true;
@@ -345,6 +402,7 @@ class Handler implements Runnable {
     public Handler(Handler handler) {
         this(handler.getSocket(), handler.getName(), handler.gameServer);
         this.person = handler.person;
+        this.isStart=true;
         this.isFirst =false;
         this.isConnected=handler.isConnected();
     }
@@ -397,6 +455,9 @@ class Handler implements Runnable {
             closAll();
         }
         else {
+            if (msg.equalsIgnoreCase("start")){
+                this.isStart = true;
+            }
             if ( person==null || (person.isAlive()&& !person.isMuted())) {
                 Date date = new Date();
                 gameServer.sendToAll(this, name + " : " + msg
@@ -427,6 +488,10 @@ class Handler implements Runnable {
             return false;
         }
         return isConnected;
+    }
+
+    public boolean isStart() {
+        return isStart;
     }
 
     public Scanner getScanner() {

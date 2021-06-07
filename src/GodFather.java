@@ -8,4 +8,9 @@ public class GodFather extends Mafia implements Capable{
     public void move() {
 
     }
+
+    @Override
+    public String toString() {
+        return "GodFather";
+    }
 }

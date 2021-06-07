@@ -4,4 +4,8 @@ public class Citizen extends Person {
         super( Side.CITIZEN);
     }
 
+    @Override
+    public String toString() {
+        return "Citizen";
+    }
 }

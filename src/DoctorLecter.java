@@ -8,4 +8,9 @@ public class DoctorLecter extends Mafia implements Capable{
     public void move() {
 
     }
+
+    @Override
+    public String toString() {
+        return "DoctorLecter";
+    }
 }

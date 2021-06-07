@@ -79,4 +79,5 @@ public class Person {
     public boolean isAlive() {
         return isAlive;
     }
+
 }

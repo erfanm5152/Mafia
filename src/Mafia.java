@@ -4,4 +4,8 @@ public class Mafia extends Person{
         super(Side.MAFIA);
     }
 
+    @Override
+    public String toString() {
+        return "Mafia";
+    }
 }
