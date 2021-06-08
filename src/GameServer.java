@@ -15,11 +15,13 @@ public class GameServer {
     private ArrayList<Handler> clients;
     private ArrayList<Person> persons;
     private boolean isValidVoting;
+    private SaveFile file;
 
     public GameServer() {
         setServerSocket();
         clients = new ArrayList<>();
         persons = new ArrayList<>();
+        file = new SaveFile(""+port);
         this.isValidVoting = true;
     }
 
@@ -156,7 +158,7 @@ public class GameServer {
     }
     public boolean isRoleInGame(String roleName){
         for (Handler handler:clients) {
-            if (handler.getPerson().toString().equals(roleName)){
+            if (handler.getPerson().toString().equals(roleName)){//todo زنده بودن چک شود یا نه؟؟؟؟
                 return true;
             }
         }
@@ -231,10 +233,14 @@ public class GameServer {
     public void stopAll() {
         sendToAll("exit");
         closeAll();
+        file.close();
         System.exit(1);
     }
 
 
+    public SaveFile getFile() {
+        return file;
+    }
 
     public void night() {
         sendToAll("shab mishavad\n" +
@@ -452,7 +458,11 @@ class Handler implements Runnable {
         }else if (msg.equals("exit")){
 //            gameServer.removeVote(this);
             printWriter.println("exit");
+            gameServer.sendToAll(name+" az bazi kharej shod.");
+            person.setAlive(false);
             closAll();
+        }else if (msg.equals("history")){
+            gameServer.sendMsg(gameServer.getFile().read(),this);
         }
         else {
             if (msg.equalsIgnoreCase("start")){
@@ -460,8 +470,10 @@ class Handler implements Runnable {
             }
             if ( person==null || (person.isAlive()&& !person.isMuted())) {
                 Date date = new Date();
-                gameServer.sendToAll(this, name + " : " + msg
-                        + "\t(" + date.getHours() + ":" + date.getMinutes() + ")");
+                String newMsg = name + " : " + msg + "\t(" +( (""+date.getHours()).length()< 2 ? ("0"+date.getHours()): date.getHours())
+                        + ":" +( (""+date.getMinutes()).length()< 2 ? ("0"+date.getMinutes()): date.getMinutes()) + ")";
+                gameServer.sendToAll(this, newMsg);
+                gameServer.getFile().write(newMsg);
             }
         }
     }
