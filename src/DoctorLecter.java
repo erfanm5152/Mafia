@@ -1,11 +1,11 @@
-public class DoctorLecter extends Mafia implements Capable{
+public class DoctorLecter extends Mafia{
 
     public DoctorLecter( ) {
         super();
     }
 
     @Override
-    public void move() {
+    public void run() {
 
     }
 

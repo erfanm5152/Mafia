@@ -1,10 +1,10 @@
-public class Detective extends Citizen implements Capable{
+public class Detective extends Citizen{
     public Detective() {
         super();
     }
 
     @Override
-    public void move() {
+    public void run() {
 
     }
 

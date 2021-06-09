@@ -1,11 +1,11 @@
-public class DieHard extends Citizen implements Capable{
+public class DieHard extends Citizen{
     public DieHard() {
         super();
         increaseHealth();
     }
 
     @Override
-    public void move() {
+    public void run() {
 
     }
 

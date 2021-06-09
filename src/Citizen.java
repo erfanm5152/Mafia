@@ -8,4 +8,9 @@ public class Citizen extends Person {
     public String toString() {
         return "Citizen";
     }
+
+    @Override
+    public void run() {
+
+    }
 }

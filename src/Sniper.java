@@ -1,11 +1,11 @@
-public class Sniper extends Citizen implements Capable{
+public class Sniper extends Citizen{
 
     public Sniper() {
         super();
     }
 
     @Override
-    public void move() {
+    public void run() {
 
     }
 

@@ -28,6 +28,7 @@ public class GameServer {
     public void initialize() {
         if (numberOfPlayers < 5) {
             sendToAll("Server: tedad kam ast.\nbye bye");
+            sendToAll("exit");
             stopAll();
             System.exit(1);
         }
@@ -127,17 +128,23 @@ public class GameServer {
     }
 
     public void gameLoop() {
+        int i =1;
         sendToAll(help());
         while (!finish()) {
+            sendToAll("-----DAY"+i+"-----");
             refreshVotes();
             try {
                 Thread.sleep(20000);// zaman sohbat karddan
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             //voting time
             new Voting(this).startVoting();
-            //todo چک شود که شهردار در بازی هست یا خیر و سپس این اسلیپ در صورت بودن شهردار اجرا شود
+
+            if (isRoleInGame("Mayor")) {
+                mayorMove();
+            }
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
@@ -152,13 +159,41 @@ public class GameServer {
                 break;
             }
             //night
+            sendToAll("-----NIGHT"+i+"-----");
+            i++;
         }
         end();
         stopAll();
     }
+
+    public void mayorMove(){
+        sendToAll("nobat shahrdar ast.");
+        Handler mayor = getRoleHandler("Mayor");
+        sendMsg("MayorRole",mayor);
+        new Thread(mayor.getPerson()).start();
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        sendMsg("spurious choice" ,mayor);
+        mayor.setExit(true);
+        mayor = new Handler(mayor);
+        new Thread(mayor).start();
+    }
+
+    public Handler getRoleHandler(String nameOfRole){
+        for (Handler handler:clients) {
+            if (handler.getPerson().toString().equals(nameOfRole)){
+                return handler;
+            }
+        }
+        return null;
+    }
+
     public boolean isRoleInGame(String roleName){
         for (Handler handler:clients) {
-            if (handler.getPerson().toString().equals(roleName)){//todo زنده بودن چک شود یا نه؟؟؟؟
+            if (handler.getPerson().toString().equals(roleName) && handler.getPerson().isAlive()){//todo زنده بودن چک شود یا نه؟؟؟؟
                 return true;
             }
         }
@@ -189,9 +224,11 @@ public class GameServer {
         }
         Random random =new Random();
         Handler handler = voted.get(random.nextInt(voted.size()));
-        sendToAll(handler.getName()+" ba ray giri kharej shod.");
-        handler.getPerson().setAlive(false);
-        sendMsg("baraye khoroj az bazi \"exit\" ra vared konid.",handler);
+        if (handler.getPerson().isAlive()) {
+            sendToAll(handler.getName() + " ba ray giri kharej shod.");
+            handler.getPerson().setAlive(false);
+            sendMsg("baraye khoroj az bazi \"exit\" ra vared konid.", handler);
+        }
     }
 
     public ArrayList<Handler> votedClients(){
@@ -274,6 +311,7 @@ public class GameServer {
         for (int i = 0; i < persons.size(); i++) {
             Person role = persons.get(i);
             clients.get(i).setPerson(role);
+            role.setHandler(clients.get(i));
             sendMsg("naghshe shoma : " + role.toString(), clients.get(i));
         }
     }
@@ -310,6 +348,10 @@ public class GameServer {
             return true;
         }
         return false;
+    }
+
+    public void setValidVoting(boolean validVoting) {
+        isValidVoting = validVoting;
     }
 
     public int numberOfCitizen() {
@@ -408,6 +450,7 @@ class Handler implements Runnable {
     public Handler(Handler handler) {
         this(handler.getSocket(), handler.getName(), handler.gameServer);
         this.person = handler.person;
+        this.person.setHandler(this);
         this.isStart=true;
         this.isFirst =false;
         this.isConnected=handler.isConnected();
@@ -451,9 +494,9 @@ class Handler implements Runnable {
     }
 
     public void checkMsg(String msg) {
-        if (msg.equals("VoTe")){
+        if (msg.equals("VoTe") || msg.equals("MayorRole")){
             isScan=false;
-        }else if (msg.equals("spurious vote")){
+        }else if (msg.equals("spurious vote")||msg.equals("spurious choice")){
 
         }else if (msg.equals("exit")){
 //            gameServer.removeVote(this);
@@ -561,6 +604,10 @@ class Handler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public GameServer getGameServer() {
+        return gameServer;
     }
 
     @Override

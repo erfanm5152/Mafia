@@ -1,15 +1,14 @@
-import jdk.jshell.PersistentSnippet;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Person {
+public abstract class Person implements Runnable{
 
     private boolean isMuted;
     private boolean isAlive;
     private int health;
     private Side side;
     private ArrayList<Vote> votes;
+    private Handler handler;
 
     public Person(Side side) {
         this.side = side;
@@ -17,13 +16,14 @@ public class Person {
         this.votes = new ArrayList<>();
         this.isMuted = false;
         this.isAlive = true;
+        this.handler = null;
     }
 
-    public void increaseHealth(){
+    public synchronized void increaseHealth(){
         this.health++;
     }
 
-    public void decreaseHealth(){
+    public synchronized void decreaseHealth(){
         this.health--;
     }
 
@@ -64,7 +64,15 @@ public class Person {
         }
     }
 
-    public void setAlive(boolean alive) {
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
+    public synchronized void setAlive(boolean alive) {
         isAlive = alive;
     }
 
@@ -79,5 +87,6 @@ public class Person {
     public boolean isAlive() {
         return isAlive;
     }
+
 
 }

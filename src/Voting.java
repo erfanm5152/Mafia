@@ -21,13 +21,18 @@ public class Voting {
             }
         }
         try {
-            Thread.sleep(30000);
+            Thread.sleep(25000);
         } catch (InterruptedException e){
             e.printStackTrace();
         }
         pool.shutdownNow();
         gameServer.printVoteList();
         gameServer.sendToAll("spurious vote");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         for (Handler temp: gameServer.getClients()) {
             temp.setExit(true);
             Handler newHandler = new Handler(temp);

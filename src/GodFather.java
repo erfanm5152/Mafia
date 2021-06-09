@@ -1,11 +1,11 @@
-public class GodFather extends Mafia implements Capable{
+public class GodFather extends Mafia {
 
     public GodFather() {
         super();
     }
 
     @Override
-    public void move() {
+    public void run() {
 
     }
 

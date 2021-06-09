@@ -8,4 +8,9 @@ public class Mafia extends Person{
     public String toString() {
         return "Mafia";
     }
+
+    @Override
+    public void run() {
+
+    }
 }
