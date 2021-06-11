@@ -4,6 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import java.net.SocketException;
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -15,6 +16,8 @@ public class GameServer {
     private ArrayList<Handler> clients;
     private ArrayList<Person> persons;
     private boolean isValidVoting;
+    private boolean isIntroduction;
+    private boolean isInquiry;
     private SaveFile file;
 
     public GameServer() {
@@ -23,15 +26,17 @@ public class GameServer {
         persons = new ArrayList<>();
         file = new SaveFile(""+port);
         this.isValidVoting = true;
+        this.isIntroduction = true;
+        this.isInquiry = true;
     }
-
+//todo از کامنت در بیاد.
     public void initialize() {
-        if (numberOfPlayers < 5) {
-            sendToAll("Server: tedad kam ast.\nbye bye");
-            sendToAll("exit");
-            stopAll();
-            System.exit(1);
-        }
+//        if (numberOfPlayers < 5) {
+//            sendToAll("Server: tedad kam ast.\nbye bye");
+//            sendToAll("exit");
+//            stopAll();
+//            System.exit(1);
+//        }
         persons = PersonFactory.createPersons(numberOfPlayers);
     }
 
@@ -133,6 +138,10 @@ public class GameServer {
         while (!finish()) {
             sendToAll("-----DAY"+i+"-----");
             refreshVotes();
+            unMute();
+            if(isInquiry){
+                inquiry();
+            }
             try {
                 Thread.sleep(20000);// zaman sohbat karddan
             } catch (InterruptedException e) {
@@ -141,7 +150,7 @@ public class GameServer {
 
             //voting time
             new Voting(this).startVoting();
-
+            refreshSettings();
             if (isRoleInGame("Mayor")) {
                 mayorMove();
             }
@@ -158,18 +167,115 @@ public class GameServer {
             if (finish()){
                 break;
             }
+            unMutePsychologistRolePlay();
             //night
             sendToAll("-----NIGHT"+i+"-----");
+            new Night(this).start();
+
             i++;
         }
         end();
         stopAll();
     }
 
+    public void unMutePsychologistRolePlay(){
+        for (Handler handler:clients) {
+            if (handler.getPerson().isAlive()){
+                handler.getPerson().setPsychologicalSilence(false);
+            }
+        }
+    }
+
+    public void inquiry(){
+        String lives="";
+        String dead="";
+        for (Handler handler:clients) {
+            if (handler.getPerson().isAlive()){
+                lives += handler.getPerson().toString()+" ,";
+            }else {
+                dead+= handler.getPerson().toString()+" ,";
+            }
+        }
+        lives+='\b';
+        dead+='\b';
+        sendToAll("lives : "+lives+'\n'+"dead : "+dead);
+    }
+
+    public void refreshSettings(){
+        isValidVoting = true;
+        isInquiry = false;
+    }
+
+    public void unMute(){
+        for (Handler handler:clients) {
+            if (handler.getPerson().isAlive()){
+                handler.getPerson().setMuted(false);
+            }
+        }
+    }
+
+    public Handler getHandlerByName(String name){
+        for (Handler handler:clients) {
+            if (handler.getName().equalsIgnoreCase(name)){
+                return handler;
+            }
+        }
+        return null;
+    }
+
+    public boolean isNameInGame(String name){
+        return getNames().contains(name);
+    }
+
+
+    public void muteEvery(){
+        for (Handler handler:clients) {
+            handler.getPerson().setMuted(true);
+        }
+    }
+
+    public void introduction() {
+        sendMsgToMafia(mafiaIntroduction());
+        if (isRoleInGame("Mayor")) {
+            sendMsg("Doctor : " + getRoleHandler("Doctor").getName()
+                    , getRoleHandler("Mayor"));
+        }
+    }
+
+    public String mafiaIntroduction(){
+        String temp = "Mafia:\n";
+        for (Handler handler:clients) {
+            if (handler.getPerson() instanceof Mafia){
+                temp+=handler.getName()+" : "+handler.getPerson().toString()+'\n';
+            }
+        }
+        return temp;
+    }
+
+    public void sendMsgToMafia(String msg){
+        for (Handler handler:clients) {
+            if (handler.getPerson() instanceof Mafia){
+                sendMsg(msg,handler);
+            }
+        }
+    }
+    public void sendMsgToMafia(String msg , Handler sender){
+        for (Handler handler:clients) {
+            if (handler.getPerson() instanceof Mafia && !handler.equals(sender)){
+                sendMsg(msg,handler);
+            }
+        }
+    }
+
     public void mayorMove(){
         sendToAll("nobat shahrdar ast.");
         Handler mayor = getRoleHandler("Mayor");
         sendMsg("MayorRole",mayor);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         new Thread(mayor.getPerson()).start();
         try {
             Thread.sleep(20000);
@@ -191,6 +297,22 @@ public class GameServer {
         return null;
     }
 
+    public boolean isIntroduction() {
+        return isIntroduction;
+    }
+
+    public boolean isInquiry() {
+        return isInquiry;
+    }
+
+    public void setIntroduction(boolean introduction) {
+        isIntroduction = introduction;
+    }
+
+    public void setInquiry(boolean inquiry) {
+        isInquiry = inquiry;
+    }
+
     public boolean isRoleInGame(String roleName){
         for (Handler handler:clients) {
             if (handler.getPerson().toString().equals(roleName) && handler.getPerson().isAlive()){//todo زنده بودن چک شود یا نه؟؟؟؟
@@ -199,7 +321,6 @@ public class GameServer {
         }
         return false;
     }
-
     public void end(){
         sendToAll(namesAndRoles());
         if (winCitizens()){
@@ -216,6 +337,7 @@ public class GameServer {
         }
         return temp;
     }
+
     public void votedDeath(){
         ArrayList<Handler> voted = votedClients();
         if (voted.get(0).getPerson().numberOfVotes()==0){
@@ -277,11 +399,6 @@ public class GameServer {
 
     public SaveFile getFile() {
         return file;
-    }
-
-    public void night() {
-        sendToAll("shab mishavad\n" +
-                "va hame be khab miravand.");
     }
 
     public void removeUnconnected() {
@@ -494,9 +611,9 @@ class Handler implements Runnable {
     }
 
     public void checkMsg(String msg) {
-        if (msg.equals("VoTe") || msg.equals("MayorRole")){
+        if (msg.equals("VoTe") || msg.equals("MayorRole") || msg.equals("***PlayRole***")){
             isScan=false;
-        }else if (msg.equals("spurious vote")||msg.equals("spurious choice")){
+        }else if (msg.equals("spurious vote")||msg.equals("spurious choice") || msg.equals("spurious role")){
 
         }else if (msg.equals("exit")){
 //            gameServer.removeVote(this);
@@ -511,7 +628,7 @@ class Handler implements Runnable {
             if (msg.equalsIgnoreCase("start")){
                 this.isStart = true;
             }
-            if ( person==null || (person.isAlive()&& !person.isMuted())) {
+            if ( person==null || (person.isAlive()&& !person.isMuted() && !person.isPsychologicalSilence())) {
                 Date date = new Date();
                 String newMsg = name + " : " + msg + "\t(" +( (""+date.getHours()).length()< 2 ? ("0"+date.getHours()): date.getHours())
                         + ":" +( (""+date.getMinutes()).length()< 2 ? ("0"+date.getMinutes()): date.getMinutes()) + ")";

@@ -1,10 +1,12 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 public abstract class Person implements Runnable{
 
     private boolean isMuted;
     private boolean isAlive;
+    private boolean isPsychologicalSilence;
     private int health;
     private Side side;
     private ArrayList<Vote> votes;
@@ -16,7 +18,12 @@ public abstract class Person implements Runnable{
         this.votes = new ArrayList<>();
         this.isMuted = false;
         this.isAlive = true;
+        this.isPsychologicalSilence = false;
         this.handler = null;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     public synchronized void increaseHealth(){
@@ -27,6 +34,15 @@ public abstract class Person implements Runnable{
         this.health--;
     }
 
+
+
+    public boolean isPsychologicalSilence() {
+        return isPsychologicalSilence;
+    }
+
+    public void setPsychologicalSilence(boolean psychologicalSilence) {
+        isPsychologicalSilence = psychologicalSilence;
+    }
 
     public int getHealth() {
         return health;
@@ -68,6 +84,19 @@ public abstract class Person implements Runnable{
         return handler;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return health == person.health && side == person.side;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(health, side);
+    }
+
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
@@ -88,5 +117,7 @@ public abstract class Person implements Runnable{
         return isAlive;
     }
 
-
+    public void setMuted(boolean muted) {
+        isMuted = muted;
+    }
 }

@@ -4,6 +4,11 @@ public class PersonFactory {
     public static ArrayList<Person> createPersons(int number) {
         ArrayList<Person> temp = new ArrayList<>();
         switch (number) {
+            case 3:
+                temp.add(new GodFather());
+                temp.add(new Mayor());
+                temp.add(new Doctor());
+                break;
                 case 5:
                     temp.add(new Detective());
                     temp.add(new Doctor());

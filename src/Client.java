@@ -93,16 +93,21 @@ class Receive implements Runnable{
     public void checkMsg(String msg){
        if (msg.equals("exit")) {
            exit();
-       }else if (msg.contains("players:")){
+       }else if (msg.startsWith("players:")){
            ((Send)client.getSend()).getPrintWriter().println("VoTe");
            System.out.println(msg);
-       }else if (msg.equals("MayorRole")){
+       }else if (msg.equals("***PlayRole***")){
+           ((Send)client.getSend()).getPrintWriter().println("***PlayRole***");
+       }
+       else if (msg.equals("MayorRole")){
            ((Send)client.getSend()).getPrintWriter().println("MayorRole");
        }
        else if (msg.equals("spurious vote")){
            ((Send)client.getSend()).getPrintWriter().println("spurious vote");
        }else if (msg.equals("spurious choice")){
            ((Send)client.getSend()).getPrintWriter().println("spurious choice");
+       }else if (msg.equals("spurious role")){
+           ((Send)client.getSend()).getPrintWriter().println("spurious role");
        }
        else {
            System.out.println(msg);
