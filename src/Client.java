@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -21,7 +22,10 @@ public class Client {
             receive =new Receive(socket , this);
 //            send= new Thread(new Send(socket,this));
             send = new Send(socket,this);
-        } catch (IOException e) {
+        }catch (ConnectException e){
+            System.exit(1);
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -58,7 +62,9 @@ public class Client {
     }
     public void closeSocket(){
         try {
-            socket.close();
+            if (socket!=null) {
+                socket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

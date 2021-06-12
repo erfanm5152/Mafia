@@ -19,5 +19,6 @@ public class Mafia extends Person{
                 temp.getGameServer().getNames().toString(), temp);
         String msg = scanner.nextLine().strip();
         temp.getGameServer().sendMsgToMafia(temp.getName()+" : "+msg,temp);
+        System.out.println(msg+"<------"+toString());
     }
 }

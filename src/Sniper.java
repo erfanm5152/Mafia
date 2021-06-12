@@ -14,12 +14,16 @@ public class Sniper extends Citizen{
                 "baraye in kar chizi vared konid)"+
                 temp.getGameServer().getNames().toString(),temp);
         String chosenName = scanner.nextLine().strip();
+        if (!temp.getGameServer().isNameInGame(chosenName)){
+            return;
+        }
         Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
         if (chosenPerson instanceof Mafia){
             chosenPerson.setAlive(false);
         }else if (temp.getGameServer().isNameInGame(chosenName)){
             setAlive(false);
         }
+        System.out.println(chosenName+"<------"+toString());
     }
 
     @Override
