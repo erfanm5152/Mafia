@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
-public abstract class Person implements Runnable{
+public abstract class Person implements Runnable {
 
     private boolean isMuted;
     private boolean isAlive;
@@ -26,14 +26,13 @@ public abstract class Person implements Runnable{
         this.health = health;
     }
 
-    public synchronized void increaseHealth(){
+    public synchronized void increaseHealth() {
         this.health++;
     }
 
-    public synchronized void decreaseHealth(){
+    public synchronized void decreaseHealth() {
         this.health--;
     }
-
 
 
     public boolean isPsychologicalSilence() {
@@ -51,15 +50,16 @@ public abstract class Person implements Runnable{
     public Side getSide() {
         return side;
     }
-    public synchronized void addVote(String voterName){
+
+    public synchronized void addVote(String voterName) {
         votes.add(new Vote(voterName));
     }
 
-    public void removeVote(String voterName){
+    public void removeVote(String voterName) {
         Iterator<Vote> iterator = votes.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             Vote vote = iterator.next();
-            if (vote.getVoterName().equals(voterName)){
+            if (vote.getVoterName().equals(voterName)) {
                 iterator.remove();
             }
         }
@@ -69,12 +69,13 @@ public abstract class Person implements Runnable{
         return votes;
     }
 
-    public int sizeOfVotes(){
+    public int sizeOfVotes() {
         return votes.size();
     }
-    public void refreshVotes(){
+
+    public void refreshVotes() {
         Iterator<Vote> iterator = votes.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             iterator.next();
             iterator.remove();
         }
@@ -105,7 +106,7 @@ public abstract class Person implements Runnable{
         isAlive = alive;
     }
 
-    public int numberOfVotes(){
+    public int numberOfVotes() {
         return votes.size();
     }
 

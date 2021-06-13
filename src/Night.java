@@ -10,19 +10,19 @@ public class Night {
         this.newHandlers = new ArrayList<>();
     }
 
-    public void start(){
+    public void start() {
         refreshHealth();
         gameServer.muteEvery();
         gameServer.sendToAll("shab mishavad\n" +
                 "va hame be khab miravand.");
-        if (gameServer.isIntroduction()){
+        if (gameServer.isIntroduction()) {
             gameServer.introduction();
             gameServer.setIntroduction(false);
         }
-        for (Handler handler: gameServer.getClients()) {
-            if (handler.getPerson().isAlive() ){
-                gameServer.sendMsg("***PlayRole***",handler);
-                if (! (handler.getPerson() instanceof Mayor)) {
+        for (Handler handler : gameServer.getClients()) {
+            if (handler.getPerson().isAlive()) {
+                gameServer.sendMsg("***PlayRole***", handler);
+                if (!(handler.getPerson() instanceof Mayor)) {
                     new Thread(handler.getPerson()).start();
                     try {
                         Thread.sleep(15000);
@@ -31,30 +31,32 @@ public class Night {
                     }
                     gameServer.sendMsg("spurious role", handler);
                     gameServer.sendMsg("spurious role", handler);
+                    gameServer.sendMsg("spurious role", handler);
                 }
             }
         }
         nightDie();
-        for (Handler temp: gameServer.getClients()) {
+        for (Handler temp : gameServer.getClients()) {
             temp.setExit(true);
             Handler newHandler = new Handler(temp);
             newHandlers.add(newHandler);
-            if (temp.isConnected()){
+            if (temp.isConnected()) {
                 new Thread(newHandler).start();
             }
         }
         gameServer.setClients(newHandlers);
     }
 
-    public void nightDie(){
-        for (Handler handler: gameServer.getClients()) {
-            if (handler.getPerson().getHealth()==0){
+    public void nightDie() {
+        for (Handler handler : gameServer.getClients()) {
+            if (handler.getPerson().getHealth() == 0) {
                 handler.getPerson().setAlive(false);
             }
         }
     }
-    public void  refreshHealth(){
-        for (Handler handler: gameServer.getClients()) {
+
+    public void refreshHealth() {
+        for (Handler handler : gameServer.getClients()) {
             if (handler.getPerson().isAlive()) {
                 if (handler.getPerson().getHealth() >= 2) {
                     if (handler.getPerson() instanceof DieHard) {
@@ -63,7 +65,7 @@ public class Night {
                         } else {
                             handler.getPerson().setHealth(2);
                         }
-                    }else{
+                    } else {
                         handler.getPerson().setHealth(1);
                     }
                 }

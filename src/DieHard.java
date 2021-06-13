@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class DieHard extends Citizen{
+public class DieHard extends Citizen {
     private boolean isInjured;
     private int limitations;
 
@@ -15,20 +15,20 @@ public class DieHard extends Citizen{
     public void run() {
         Handler temp = getHandler();
         Scanner scanner = temp.getScanner();
-        String choice="";
-        if (limitations>0) {
-            temp.getGameServer().sendMsg("aya estelam mikhahid ? (Y/N)" , temp);
+        String choice = "";
+        if (limitations > 0) {
+            temp.getGameServer().sendMsg("aya estelam mikhahid ? (Y/N)", temp);
             choice = scanner.nextLine().strip();
-            if (choice.equalsIgnoreCase("y")){
+            if (choice.equalsIgnoreCase("y")) {
                 temp.getGameServer().setInquiry(true);// dar halghe bazi dar yek ja bayad false shavad
                 limitations--;
-            }else {
+            } else {
                 temp.getGameServer().setInquiry(false);
             }
-        }else {
-            temp.getGameServer().sendMsg("tedad estlam ha tamam shod.",temp);
+        } else {
+            temp.getGameServer().sendMsg("tedad estlam ha tamam shod.", temp);
         }
-        System.out.println(choice+"<------"+toString());
+        System.out.println(choice + "<------" + toString());
     }
 
     @Override

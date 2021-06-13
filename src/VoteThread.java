@@ -1,7 +1,7 @@
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class VoteThread implements Runnable{
+public class VoteThread implements Runnable {
     private Handler client;
     private GameServer gameServer;
 
@@ -21,7 +21,7 @@ public class VoteThread implements Runnable{
                     temp.getPerson().addVote(client.getName());
                 }
             }
-        }catch (NoSuchElementException e){// for disconnection
+        } catch (NoSuchElementException e) {// for disconnection
             client.getPerson().setAlive(false);
             System.out.println("dead<---");
         }

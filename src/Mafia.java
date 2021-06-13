@@ -1,8 +1,8 @@
 import java.util.Scanner;
 
-public class Mafia extends Person{
+public class Mafia extends Person {
 
-    public Mafia( ) {
+    public Mafia() {
         super(Side.MAFIA);
     }
 
@@ -18,7 +18,7 @@ public class Mafia extends Person{
         temp.getGameServer().sendMsg("yek nafar ra entekhab konid :(tanha yek payam baraye Mafia) " +
                 temp.getGameServer().getNames().toString(), temp);
         String msg = scanner.nextLine().strip();
-        temp.getGameServer().sendMsgToMafia(temp.getName()+" : "+msg,temp);
-        System.out.println(msg+"<------"+toString());
+        temp.getGameServer().sendMsgToMafia(temp.getName() + " : " + msg, temp);
+        System.out.println(msg + "<------" + toString());
     }
 }

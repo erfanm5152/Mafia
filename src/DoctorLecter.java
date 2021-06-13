@@ -1,12 +1,12 @@
 import java.util.Scanner;
 
-public class DoctorLecter extends Mafia{
+public class DoctorLecter extends Mafia {
 
     private boolean isSelf;
 
-    public DoctorLecter( ) {
+    public DoctorLecter() {
         super();
-        this.isSelf =false;
+        this.isSelf = false;
     }
 
     @Override
@@ -14,12 +14,12 @@ public class DoctorLecter extends Mafia{
         super.run();
         Handler temp = getHandler();
         Scanner scanner = temp.getScanner();
-        boolean finish= false;
+        boolean finish = false;
         do {
             temp.getGameServer().sendMsg("yek nafar ra entekhab konid : " +
                     temp.getGameServer().getNames().toString(), temp);
             String chosenName = scanner.nextLine().strip();
-            if (!temp.getGameServer().isNameInGame(chosenName)){
+            if (!temp.getGameServer().isNameInGame(chosenName)) {
                 return;
             }
             Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
@@ -27,16 +27,16 @@ public class DoctorLecter extends Mafia{
                 if (!isSelf) {
                     chosenPerson.increaseHealth();
                     isSelf = true;
-                    finish =true;
+                    finish = true;
                 }
-            }else {
-                if (chosenPerson.getSide()==Side.MAFIA) {
+            } else {
+                if (chosenPerson.getSide() == Side.MAFIA) {
                     chosenPerson.increaseHealth();
                 }
                 finish = true;
             }
-            System.out.println(chosenName+"<------"+toString());
-        }while (!finish);
+            System.out.println(chosenName + "<------" + toString());
+        } while (!finish);
     }
 
     @Override

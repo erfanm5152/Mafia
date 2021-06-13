@@ -1,7 +1,7 @@
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class Doctor extends Citizen{
+public class Doctor extends Citizen {
     private boolean isSelf;
 
     public Doctor() {
@@ -13,12 +13,12 @@ public class Doctor extends Citizen{
     public void run() {
         Handler temp = getHandler();
         Scanner scanner = temp.getScanner();
-        boolean finish= false;
+        boolean finish = false;
         do {
             temp.getGameServer().sendMsg("yek nafar ra entekhab konid : " +
                     temp.getGameServer().getNames().toString(), temp);
             String chosenName = scanner.nextLine().strip();
-            if (!temp.getGameServer().isNameInGame(chosenName)){
+            if (!temp.getGameServer().isNameInGame(chosenName)) {
                 return;
             }
             Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
@@ -26,14 +26,14 @@ public class Doctor extends Citizen{
                 if (!isSelf) {
                     chosenPerson.increaseHealth();
                     isSelf = true;
-                    finish =true;
+                    finish = true;
                 }
-            }else {
+            } else {
                 chosenPerson.increaseHealth();
                 finish = true;
             }
-            System.out.println(chosenName+"<------"+toString());
-        }while (!finish);
+            System.out.println(chosenName + "<------" + toString());
+        } while (!finish);
     }
 
     @Override

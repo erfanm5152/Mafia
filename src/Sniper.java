@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Sniper extends Citizen{
+public class Sniper extends Citizen {
 
     public Sniper() {
         super();
@@ -11,19 +11,19 @@ public class Sniper extends Citizen{
         Handler temp = getHandler();
         Scanner scanner = temp.getScanner();
         temp.getGameServer().sendMsg("yek nafar ra entekhab konid : (mitavanid kasi ra entekhab nakonid " +
-                "baraye in kar chizi vared konid)"+
-                temp.getGameServer().getNames().toString(),temp);
+                "baraye in kar chizi vared konid)" +
+                temp.getGameServer().getNames().toString(), temp);
         String chosenName = scanner.nextLine().strip();
-        if (!temp.getGameServer().isNameInGame(chosenName)){
+        if (!temp.getGameServer().isNameInGame(chosenName)) {
             return;
         }
         Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
-        if (chosenPerson instanceof Mafia){
-            chosenPerson.setAlive(false);
-        }else if (temp.getGameServer().isNameInGame(chosenName)){
+        if (chosenPerson instanceof Mafia) {
+            chosenPerson.decreaseHealth();
+        } else {
             setAlive(false);
         }
-        System.out.println(chosenName+"<------"+toString());
+        System.out.println(chosenName + "<------" + toString());
     }
 
     @Override

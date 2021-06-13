@@ -1,4 +1,4 @@
-public class GodFatherSuccessor extends GodFather{
+public class GodFatherSuccessor extends GodFather {
 
     private Mafia successor;
 
