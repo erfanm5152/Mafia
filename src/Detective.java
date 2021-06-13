@@ -17,7 +17,7 @@ public class Detective extends Citizen{
         }
         Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
         if (chosenPerson instanceof Mafia){
-            if (chosenPerson instanceof GodFather){
+            if (chosenPerson instanceof GodFather && !(chosenPerson instanceof GodFatherSuccessor)){
                 temp.getGameServer().sendMsg("adam taid.",temp);
             }else {
                 temp.getGameServer().sendMsg("taid.",temp);

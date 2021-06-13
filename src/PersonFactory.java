@@ -20,8 +20,8 @@ public class PersonFactory {
                     temp.add(new Doctor());
                     temp.add(new GodFather());
                     temp.add(new Citizen());
-//                    temp.add(new Mafia());
-                    temp.add(new Mayor());
+                    temp.add(new Mafia());
+//                    temp.add(new Mayor());
                     break;
                 case 6:
                     temp.add(new Detective());

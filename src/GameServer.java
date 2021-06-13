@@ -173,6 +173,7 @@ public class GameServer {
                 break;
             }
             unMutePsychologistRolePlay();
+            setGodFatherSuccessor();
             //night
             removeUnconnected();
             sendToAll("-----NIGHT" + i + "-----");
@@ -444,6 +445,20 @@ public class GameServer {
             this.numberOfPlayers = Integer.parseInt(firstClient.getScanner().nextLine());
         }catch (NumberFormatException e){
             setNumberOfPlayers(firstClient);
+        }
+    }
+    public void setGodFatherSuccessor(){
+        if (isRoleInGame("GodFather")|| isRoleInGame("GodFatherSuccessor")){
+            return;
+        }else {
+            for (int i = clients.size()-1; i >=0 ; i--) {
+                Handler temp = clients.get(i);
+                Person tempPerson=temp.getPerson();
+                if (tempPerson instanceof Mafia && tempPerson.isAlive()) {
+                    temp.setPerson(new GodFatherSuccessor((Mafia) tempPerson));
+                    sendMsg("shoma janeshin GodFather hastid.",temp);
+                }
+            }
         }
     }
 
