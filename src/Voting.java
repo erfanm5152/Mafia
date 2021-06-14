@@ -11,8 +11,7 @@ import java.util.concurrent.Executors;
 public class Voting {
     // The server where the game is being played.
     private GameServer gameServer;
-    // list of new handlers to be created in this class.
-    private ArrayList<Handler> newHandlers;
+
 
     /**
      * create new voting by GameServer
@@ -21,7 +20,6 @@ public class Voting {
      */
     public Voting(GameServer gameServer) {
         this.gameServer = gameServer;
-        this.newHandlers = new ArrayList<>();
     }
 
     /**
@@ -49,14 +47,6 @@ public class Voting {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (Handler temp : gameServer.getClients()) {//todo neveshtan method baraye in dar server.
-            temp.setExit(true);
-            Handler newHandler = new Handler(temp);
-            newHandlers.add(newHandler);
-            if (temp.isConnected()) {
-                new Thread(newHandler).start();
-            }
-        }
-        gameServer.setClients(newHandlers);
+        gameServer.setNewHandlers();
     }
 }

@@ -11,8 +11,7 @@ import java.util.ArrayList;
 public class Night {
     // server of the game
     private GameServer gameServer;
-    // new handlers that to be created
-    private ArrayList<Handler> newHandlers;
+
 
     /**
      * Instantiates a new Night.
@@ -21,7 +20,6 @@ public class Night {
      */
     public Night(GameServer gameServer) {
         this.gameServer = gameServer;
-        this.newHandlers = new ArrayList<>();
     }
 
     /**
@@ -53,15 +51,7 @@ public class Night {
             }
         }
         nightDie();
-        for (Handler temp : gameServer.getClients()) {//todo neveshtan method baraye in dar server.
-            temp.setExit(true);
-            Handler newHandler = new Handler(temp);
-            newHandlers.add(newHandler);
-            if (temp.isConnected()) {
-                new Thread(newHandler).start();
-            }
-        }
-        gameServer.setClients(newHandlers);
+        gameServer.setNewHandlers();
     }
 
     /**
@@ -72,7 +62,7 @@ public class Night {
         for (Handler handler : gameServer.getClients()) {
             if (handler.getPerson().getHealth() <= 0) {
                 handler.getPerson().setAlive(false);
-                gameServer.sendMsg("shoma dar sgab koshte shodid.",handler);
+                gameServer.sendMsg("shoma dar sgab koshte shodid.", handler);
             }
         }
     }

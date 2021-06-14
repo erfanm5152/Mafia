@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
 
-
 /**
  * The type Game server.
  *
@@ -185,6 +184,7 @@ public class GameServer {
     /**
      * Is start boolean.
      * check readiness of the players
+     *
      * @return the boolean
      */
     public boolean isStart() {
@@ -193,6 +193,22 @@ public class GameServer {
             temp = temp && handler.isStart();
         }
         return temp;
+    }
+
+    /**
+     * for set new handlers after voting and night.
+     */
+    public void setNewHandlers() {
+        ArrayList<Handler> newHandlers = new ArrayList<>();
+        for (Handler temp : clients) {
+            temp.setExit(true);
+            Handler newHandler = new Handler(temp);
+            newHandlers.add(newHandler);
+            if (temp.isConnected()) {
+                new Thread(newHandler).start();
+            }
+        }
+        this.setClients(newHandlers);
     }
 
     /**
