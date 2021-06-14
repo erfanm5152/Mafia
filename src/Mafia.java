@@ -1,7 +1,16 @@
 import java.util.Scanner;
 
+/**
+ * The type Mafia.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Mafia extends Person {
 
+    /**
+     * Instantiates a new Mafia.
+     */
     public Mafia() {
         super(Side.MAFIA);
     }
@@ -11,6 +20,9 @@ public class Mafia extends Person {
         return "Mafia";
     }
 
+    /**
+     * for move of the mafia in night.
+     */
     @Override
     public void run() {
         Handler temp = getHandler();

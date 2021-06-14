@@ -1,11 +1,23 @@
 import java.util.Scanner;
 
+/**
+ * The type God father.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class GodFather extends Mafia {
 
+    /**
+     * Instantiates a new God father.
+     */
     public GodFather() {
         super();
     }
 
+    /**
+     * move of the godFather in night
+     */
     @Override
     public void run() {
         Handler temp = getHandler();
@@ -25,7 +37,9 @@ public class GodFather extends Mafia {
         }
         System.out.println(chosenName + "<------" + toString());
     }
-
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "GodFather";

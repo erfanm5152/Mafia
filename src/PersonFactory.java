@@ -1,6 +1,19 @@
 import java.util.ArrayList;
 
+/**
+ * The type Person factory.
+ * for create roles of the game by number of players.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class PersonFactory {
+    /**
+     * Create persons array list.
+     *
+     * @param number the number of players
+     * @return the array list
+     */
     public static ArrayList<Person> createPersons(int number) {
         ArrayList<Person> temp = new ArrayList<>();
         switch (number) {

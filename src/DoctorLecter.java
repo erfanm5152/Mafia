@@ -1,17 +1,29 @@
 import java.util.Scanner;
 
+/**
+ * The type Doctor lecter.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class DoctorLecter extends Mafia {
-
+    // for show move of the doctor on self.
     private boolean isSelf;
 
+    /**
+     * Instantiates a new Doctor lecter.
+     */
     public DoctorLecter() {
         super();
         this.isSelf = false;
     }
 
+    /**
+     * move of doctor lecter in night.
+     */
     @Override
     public void run() {
-        super.run();
+        super.run();// move of a mafia in night
         Handler temp = getHandler();
         Scanner scanner = temp.getScanner();
         boolean finish = false;
@@ -38,7 +50,9 @@ public class DoctorLecter extends Mafia {
             System.out.println(chosenName + "<------" + toString());
         } while (!finish);
     }
-
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "DoctorLecter";

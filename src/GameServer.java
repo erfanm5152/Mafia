@@ -7,18 +7,35 @@ import java.net.SocketException;
 import java.util.*;
 
 
+/**
+ * The type Game server.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class GameServer {
-
+    // the number of players
     private int numberOfPlayers;
+    // port number of Server socket
     private int port;
+    // socket of the server
     private ServerSocket welcomingSocket;
+    // list of the clients of the server
     private ArrayList<Handler> clients;
+    // List of people in the game.
     private ArrayList<Person> persons;
+    // for check validity of voting
     private boolean isValidVoting;
+    // for introduction
     private boolean isIntroduction;
+    // for check inquiry
     private boolean isInquiry;
+    // for save the messages
     private SaveFile file;
 
+    /**
+     * Instantiates a new Game server.
+     */
     public GameServer() {
         setServerSocket();
         clients = new ArrayList<>();
@@ -29,6 +46,10 @@ public class GameServer {
         this.isInquiry = true;
     }
 
+    /**
+     * Initialize.
+     * create list of persons.
+     */
     public void initialize() {
         if (numberOfPlayers < 5) {
             sendToAll("Server: tedad kam ast.\nbye bye");
@@ -39,18 +60,32 @@ public class GameServer {
         persons = PersonFactory.createPersons(numberOfPlayers);
     }
 
+    /**
+     * Close all.
+     */
     public void closeAll() {
         for (Handler temp : clients) {
             temp.closAll();
         }
     }
 
+    /**
+     * Send to all from the server.
+     *
+     * @param msg the msg
+     */
     public synchronized void sendToAll(String msg) {
         for (Handler temp : clients) {
             sendMsg(msg, temp);
         }
     }
 
+    /**
+     * Send to all from a client .
+     *
+     * @param sender the sender
+     * @param msg    the msg
+     */
     public synchronized void sendToAll(Handler sender, String msg) {
         for (Handler temp : clients) {
             if (!temp.equals(sender)) {
@@ -59,12 +94,21 @@ public class GameServer {
         }
     }
 
+    /**
+     * Send msg to a client.
+     *
+     * @param msg    the msg
+     * @param client the client
+     */
     public synchronized void sendMsg(String msg, Handler client) {
         if (client.isConnected()) {
             client.getPrintWriter().println(msg);
         }
     }
 
+    /**
+     * create server socket.
+     */
     private void setServerSocket() {
         do {
             setPort();
@@ -76,6 +120,11 @@ public class GameServer {
         } while (welcomingSocket == null);
     }
 
+    /**
+     * Send to lives.
+     *
+     * @param msg the msg
+     */
     public void sendToLives(String msg) {
         for (Handler handler : clients) {
             if (handler.getPerson().isAlive() && handler.isConnected()) {
@@ -84,10 +133,18 @@ public class GameServer {
         }
     }
 
+    /**
+     * set port of the server with random number.
+     */
     private void setPort() {
         this.port = new Random().nextInt(10000) + 10000;
     }
 
+    /**
+     * Start server.
+     *
+     * @throws IOException the io exception
+     */
     public void startServer() throws IOException {
         System.out.println("port : " + port);
         System.out.println("server montazer ast.");
@@ -98,7 +155,7 @@ public class GameServer {
             Socket socket = welcomingSocket.accept();
             System.out.println("client vasl shod.");
             Handler client = new Handler(socket, "", this);
-            if (i == 0) {
+            if (i == 0) {// get number of players from the first client
                 setNumberOfPlayers(client);
             }
             clients.add(client);
@@ -110,6 +167,9 @@ public class GameServer {
         startGame();
     }
 
+    /**
+     * Start game.
+     */
     public void startGame() {
         while (true) {
             if (isStart()) {
@@ -122,6 +182,11 @@ public class GameServer {
         gameLoop();
     }
 
+    /**
+     * Is start boolean.
+     * check readiness of the players
+     * @return the boolean
+     */
     public boolean isStart() {
         boolean temp = true;
         for (Handler handler : clients) {
@@ -130,10 +195,18 @@ public class GameServer {
         return temp;
     }
 
+    /**
+     * Sets clients.
+     *
+     * @param clients the clients
+     */
     public void setClients(ArrayList<Handler> clients) {
         this.clients = clients;
     }
 
+    /**
+     * Game loop.
+     */
     public void gameLoop() {
         int i = 1;
         sendToAll(help());
@@ -151,7 +224,7 @@ public class GameServer {
                 inquiry();
             }
             try {
-                Thread.sleep(20000);// zaman sohbat karddan
+                Thread.sleep(20000);// time to argue
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -163,7 +236,7 @@ public class GameServer {
                 mayorMove();
             }
             try {
-                Thread.sleep(10000);
+                Thread.sleep(10000);// time for voting
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -188,6 +261,9 @@ public class GameServer {
         stopAll();
     }
 
+    /**
+     * Send news of psychologist.
+     */
     public void sendNewsOfPsychologist() {
         for (Handler handler : clients) {
             if (handler.getPerson().isPsychologicalSilence()) {
@@ -198,6 +274,9 @@ public class GameServer {
     }
 
 
+    /**
+     * Un mute psychologist role play.
+     */
     public void unMutePsychologistRolePlay() {
         for (Handler handler : clients) {
             if (handler.getPerson().isAlive()) {
@@ -206,6 +285,9 @@ public class GameServer {
         }
     }
 
+    /**
+     * Announce the status of the players.
+     */
     public void announce() {
         String lives = "";
         String dead = "";
@@ -221,6 +303,9 @@ public class GameServer {
         sendToAll("lives : " + lives + '\n' + "dead : " + dead);
     }
 
+    /**
+     * Inquiry for die hard role.
+     */
     public void inquiry() {
         String lives = "";
         String dead = "";
@@ -236,11 +321,17 @@ public class GameServer {
         sendToAll("lives : " + lives + '\n' + "dead : " + dead);
     }
 
+    /**
+     * Refresh settings.
+     */
     public void refreshSettings() {
         isValidVoting = true;
         isInquiry = false;
     }
 
+    /**
+     * Un mute players after night.
+     */
     public void unMute() {
         for (Handler handler : clients) {
             if (handler.getPerson().isAlive()) {
@@ -249,6 +340,12 @@ public class GameServer {
         }
     }
 
+    /**
+     * Gets handler by name.
+     *
+     * @param name the name
+     * @return the handler by name
+     */
     public Handler getHandlerByName(String name) {
         for (Handler handler : clients) {
             if (handler.getName().equalsIgnoreCase(name)) {
@@ -258,17 +355,29 @@ public class GameServer {
         return null;
     }
 
+    /**
+     * Is name in game boolean.
+     *
+     * @param name the name
+     * @return the boolean
+     */
     public boolean isNameInGame(String name) {
         return getNames().contains(name);
     }
 
 
+    /**
+     * Mute everyone.
+     */
     public void muteEvery() {
         for (Handler handler : clients) {
             handler.getPerson().setMuted(true);
         }
     }
 
+    /**
+     * Introduction night.
+     */
     public void introduction() {
         sendMsgToMafia(mafiaIntroduction());
         if (isRoleInGame("Mayor")) {
@@ -277,6 +386,11 @@ public class GameServer {
         }
     }
 
+    /**
+     * Mafia introduction string.
+     *
+     * @return the string
+     */
     public String mafiaIntroduction() {
         String temp = "Mafia:\n";
         for (Handler handler : clients) {
@@ -287,6 +401,11 @@ public class GameServer {
         return temp;
     }
 
+    /**
+     * Send msg to mafia from the server.
+     *
+     * @param msg the msg
+     */
     public void sendMsgToMafia(String msg) {
         for (Handler handler : clients) {
             if (handler.getPerson() instanceof Mafia) {
@@ -295,6 +414,12 @@ public class GameServer {
         }
     }
 
+    /**
+     * Send msg to mafia from a mafia.
+     *
+     * @param msg    the msg
+     * @param sender the sender
+     */
     public void sendMsgToMafia(String msg, Handler sender) {
         for (Handler handler : clients) {
             if (handler.getPerson() instanceof Mafia && !handler.equals(sender)) {
@@ -303,6 +428,9 @@ public class GameServer {
         }
     }
 
+    /**
+     * Mayor move.
+     */
     public void mayorMove() {
         sendToAll("nobat shahrdar ast.");
         Handler mayor = getRoleHandler("Mayor");
@@ -324,6 +452,12 @@ public class GameServer {
         new Thread(mayor).start();
     }
 
+    /**
+     * Gets role handler.
+     *
+     * @param nameOfRole the name of role
+     * @return the role handler
+     */
     public Handler getRoleHandler(String nameOfRole) {
         for (Handler handler : clients) {
             if (handler.getPerson().toString().equals(nameOfRole)) {
@@ -333,22 +467,48 @@ public class GameServer {
         return null;
     }
 
+    /**
+     * Is introduction boolean.
+     *
+     * @return the boolean
+     */
     public boolean isIntroduction() {
         return isIntroduction;
     }
 
+    /**
+     * Is inquiry boolean.
+     *
+     * @return the boolean
+     */
     public boolean isInquiry() {
         return isInquiry;
     }
 
+    /**
+     * Sets introduction.
+     *
+     * @param introduction the introduction
+     */
     public void setIntroduction(boolean introduction) {
         isIntroduction = introduction;
     }
 
+    /**
+     * Sets inquiry.
+     *
+     * @param inquiry the inquiry
+     */
     public void setInquiry(boolean inquiry) {
         isInquiry = inquiry;
     }
 
+    /**
+     * Is role in game boolean.
+     *
+     * @param roleName the role name
+     * @return the boolean
+     */
     public boolean isRoleInGame(String roleName) {
         for (Handler handler : clients) {
             if (handler.getPerson().toString().equals(roleName) && handler.getPerson().isAlive()) {
@@ -358,6 +518,9 @@ public class GameServer {
         return false;
     }
 
+    /**
+     * End of the game message.
+     */
     public void end() {
         sendToAll(namesAndRoles());
         if (winCitizens()) {
@@ -368,6 +531,11 @@ public class GameServer {
         }
     }
 
+    /**
+     * Names and roles string.
+     *
+     * @return the string
+     */
     public String namesAndRoles() {
         String temp = "";
         for (Handler handler : clients) {
@@ -376,6 +544,10 @@ public class GameServer {
         return temp;
     }
 
+    /**
+     * Voted death.
+     * To kill someone who voted
+     */
     public void votedDeath() {
         ArrayList<Handler> voted = votedClients();
         if (voted.get(0).getPerson().numberOfVotes() == 0) {
@@ -391,6 +563,11 @@ public class GameServer {
         }
     }
 
+    /**
+     * Voted clients array list.
+     *
+     * @return the array list of Those who voted
+     */
     public ArrayList<Handler> votedClients() {
         ArrayList<Handler> temp = new ArrayList<>();
         int maxVote = 0;
@@ -410,12 +587,18 @@ public class GameServer {
         return temp;
     }
 
+    /**
+     * Refresh votes.
+     */
     public void refreshVotes() {
         for (Handler temp : clients) {
             temp.getPerson().refreshVotes();
         }
     }
 
+    /**
+     * Voting.
+     */
     public void voting() {
         sendToAll("zamane ray giri fara resid. ");
         sendToAll("players: " + getNames().toString());
@@ -427,6 +610,10 @@ public class GameServer {
         printVoteList();
     }
 
+    /**
+     * Stop all.
+     * and exit from app
+     */
     public void stopAll() {
         sendToAll("exit");
         closeAll();
@@ -435,10 +622,18 @@ public class GameServer {
     }
 
 
+    /**
+     * Gets file.
+     *
+     * @return the file
+     */
     public SaveFile getFile() {
         return file;
     }
 
+    /**
+     * Remove unconnected plaeyrs.
+     */
     public void removeUnconnected() {
         for (Handler handler : clients) {
             if (!handler.isConnected()) {
@@ -447,11 +642,21 @@ public class GameServer {
         }
     }
 
+    /**
+     * Help string.
+     *
+     * @return the help message
+     */
     public String help() {
         return "az hala be bad shoma be onvoan yek mafia ya shahrvand dar bazi hozor darid\n va bayad talash konid ke" +
                 "team shoma barande shavad.";
     }
 
+    /**
+     * Sets number of players (for first player).
+     *
+     * @param firstClient the first client
+     */
     public void setNumberOfPlayers(Handler firstClient) {
         sendMsg("tedad bazikon ha ra vared konid: ", firstClient);
         try {
@@ -461,6 +666,9 @@ public class GameServer {
         }
     }
 
+    /**
+     * Sets god father successor.
+     */
     public void setGodFatherSuccessor() {
         if (isRoleInGame("GodFather") || isRoleInGame("GodFatherSuccessor")) {
             return;
@@ -476,6 +684,11 @@ public class GameServer {
         }
     }
 
+    /**
+     * Distribution of roles.
+     *
+     * @param persons the persons
+     */
     public void distributionOfRoles(ArrayList<Person> persons) {
         ArrayList<Person> temp = persons;
         Collections.shuffle(temp);
@@ -490,6 +703,9 @@ public class GameServer {
         swapGodfatherEndOfMafia();
     }
 
+    /**
+     * Swap godfather end of mafia.
+     */
     public void swapGodfatherEndOfMafia() {
         int indexFinalMafia = 0;
         int indexGodfather = 0;
@@ -510,6 +726,11 @@ public class GameServer {
         Collections.swap(clients, indexGodfather, indexFinalMafia);
     }
 
+    /**
+     * Gets names.
+     *
+     * @return the names
+     */
     public ArrayList<String> getNames() {
         ArrayList<String> names = new ArrayList<>();
         for (Handler temp : clients) {
@@ -520,10 +741,18 @@ public class GameServer {
         return names;
     }
 
+    /**
+     * Print vote list.
+     */
     public void printVoteList() {
         sendToAll(getVotes());
     }
 
+    /**
+     * Finish boolean.
+     *
+     * @return the boolean
+     */
     public boolean finish() {
         if (winCitizens() || winMafia()) {
             return true;
@@ -531,6 +760,11 @@ public class GameServer {
         return false;
     }
 
+    /**
+     * Win citizens boolean.
+     *
+     * @return the boolean
+     */
     public boolean winCitizens() {
         if (numberOfMafia() == 0) {
             return true;
@@ -538,6 +772,11 @@ public class GameServer {
         return false;
     }
 
+    /**
+     * Win mafia boolean.
+     *
+     * @return the boolean
+     */
     public boolean winMafia() {
         if (numberOfMafia() >= numberOfCitizen()) {
             return true;
@@ -545,10 +784,20 @@ public class GameServer {
         return false;
     }
 
+    /**
+     * Sets valid voting.
+     *
+     * @param validVoting the valid voting
+     */
     public void setValidVoting(boolean validVoting) {
         isValidVoting = validVoting;
     }
 
+    /**
+     * Number of citizen int.
+     *
+     * @return the int
+     */
     public int numberOfCitizen() {
         int counter = 0;
         for (Handler temp : clients) {
@@ -559,6 +808,11 @@ public class GameServer {
         return counter;
     }
 
+    /**
+     * Number of mafia int.
+     *
+     * @return the int
+     */
     public int numberOfMafia() {
         int counter = 0;
         for (Handler temp : clients) {
@@ -569,10 +823,20 @@ public class GameServer {
         return counter;
     }
 
+    /**
+     * Gets clients.
+     *
+     * @return the clients
+     */
     public ArrayList<Handler> getClients() {
         return clients;
     }
 
+    /**
+     * Gets votes.
+     *
+     * @return the votes
+     */
     public synchronized String getVotes() {
         String temp = "";
         for (Handler client : clients) {
@@ -583,6 +847,12 @@ public class GameServer {
         return temp;
     }
 
+    /**
+     * Vote.
+     *
+     * @param client    the client
+     * @param votedName the voted name
+     */
     public synchronized void vote(Handler client, String votedName) {
         removeVote(client);
         for (Handler temp : clients) {
@@ -592,16 +862,31 @@ public class GameServer {
         }
     }
 
+    /**
+     * Remove vote.
+     *
+     * @param client the client
+     */
     public void removeVote(Handler client) {
         for (Handler temp : clients) {
             temp.getPerson().removeVote(client.getName());
         }
     }
 
+    /**
+     * Remove client.
+     *
+     * @param client the client
+     */
     public void removeClient(Handler client) {
         clients.remove(client);
     }
 
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
     public static void main(String[] args) {
         try {
             new GameServer().startServer();

@@ -1,12 +1,24 @@
 import java.util.Scanner;
 
+/**
+ * The type Mayor.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Mayor extends Citizen {
 
 
+    /**
+     * Instantiates a new Mayor.
+     */
     public Mayor() {
         super();
     }
 
+    /**
+     * move of the mayor in voting.
+     */
     @Override
     public void run() {
         Handler mayor = getHandler();
@@ -21,6 +33,9 @@ public class Mayor extends Citizen {
         }
     }
 
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "Mayor";

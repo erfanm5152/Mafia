@@ -1,10 +1,22 @@
 import java.util.Scanner;
 
+/**
+ * The type Psychologist.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Psychologist extends Citizen {
+    /**
+     * Instantiates a new Psychologist.
+     */
     public Psychologist() {
         super();
     }
 
+    /**
+     * move of the psychologist in night.
+     */
     @Override
     public void run() {
         Handler temp = getHandler();
@@ -21,6 +33,9 @@ public class Psychologist extends Citizen {
         System.out.println(chosenName + "<------" + toString());
     }
 
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "Psychologist";

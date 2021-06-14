@@ -1,14 +1,26 @@
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+/**
+ * The type Doctor.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Doctor extends Citizen {
+    //for show move of the doctor on self.
     private boolean isSelf;
 
+    /**
+     * Instantiates a new Doctor.
+     */
     public Doctor() {
         super();
         isSelf = false;
     }
 
+    /**
+     * move of the doctor in night.
+     */
     @Override
     public void run() {
         Handler temp = getHandler();
@@ -36,6 +48,9 @@ public class Doctor extends Citizen {
         } while (!finish);
     }
 
+    /**
+     * @return name of the role.
+     */
     @Override
     public String toString() {
         return "Doctor";

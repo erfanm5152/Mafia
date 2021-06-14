@@ -1,11 +1,23 @@
 import java.util.Scanner;
 
+/**
+ * The type Sniper.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Sniper extends Citizen {
 
+    /**
+     * Instantiates a new Sniper.
+     */
     public Sniper() {
         super();
     }
 
+    /**
+     * move of the sniper in night.
+     */
     @Override
     public void run() {
         Handler temp = getHandler();
@@ -20,12 +32,15 @@ public class Sniper extends Citizen {
         Person chosenPerson = temp.getGameServer().getHandlerByName(chosenName).getPerson();
         if (chosenPerson instanceof Mafia) {
             chosenPerson.decreaseHealth();
-        } else {
-            setAlive(false);
+        } else {// for incorrect shot in night
+            decreaseHealth();
+            decreaseHealth();
         }
         System.out.println(chosenName + "<------" + toString());
     }
-
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "Sniper";

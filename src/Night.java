@@ -1,15 +1,32 @@
 import java.util.ArrayList;
 
 
+/**
+ * The type Night.
+ * for do moves in night.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Night {
+    // server of the game
     private GameServer gameServer;
+    // new handlers that to be created
     private ArrayList<Handler> newHandlers;
 
+    /**
+     * Instantiates a new Night.
+     *
+     * @param gameServer the game server
+     */
     public Night(GameServer gameServer) {
         this.gameServer = gameServer;
         this.newHandlers = new ArrayList<>();
     }
 
+    /**
+     * Start do moves.
+     */
     public void start() {
         refreshHealth();
         gameServer.muteEvery();
@@ -36,7 +53,7 @@ public class Night {
             }
         }
         nightDie();
-        for (Handler temp : gameServer.getClients()) {
+        for (Handler temp : gameServer.getClients()) {//todo neveshtan method baraye in dar server.
             temp.setExit(true);
             Handler newHandler = new Handler(temp);
             newHandlers.add(newHandler);
@@ -47,14 +64,22 @@ public class Night {
         gameServer.setClients(newHandlers);
     }
 
+    /**
+     * Night die.
+     * Killing people who have lost their lives.
+     */
     public void nightDie() {
         for (Handler handler : gameServer.getClients()) {
-            if (handler.getPerson().getHealth() == 0) {
+            if (handler.getPerson().getHealth() <= 0) {
                 handler.getPerson().setAlive(false);
+                gameServer.sendMsg("shoma dar sgab koshte shodid.",handler);
             }
         }
     }
 
+    /**
+     * Refresh health after shot of mafia and save of the doctor.
+     */
     public void refreshHealth() {
         for (Handler handler : gameServer.getClients()) {
             if (handler.getPerson().isAlive()) {

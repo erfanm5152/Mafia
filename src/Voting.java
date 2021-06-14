@@ -2,15 +2,31 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * class for voting time to start vote thread for each player.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Voting {
+    // The server where the game is being played.
     private GameServer gameServer;
+    // list of new handlers to be created in this class.
     private ArrayList<Handler> newHandlers;
 
+    /**
+     * create new voting by GameServer
+     *
+     * @param gameServer the game server where game is playing.
+     */
     public Voting(GameServer gameServer) {
         this.gameServer = gameServer;
         this.newHandlers = new ArrayList<>();
     }
 
+    /**
+     * for start voting in server.
+     */
     public synchronized void startVoting() {
         ExecutorService pool = Executors.newCachedThreadPool();
         gameServer.sendToAll("zamane ray giri fara resid. ");
@@ -20,20 +36,20 @@ public class Voting {
                 pool.execute(new VoteThread(handler, gameServer));
             }
         }
-        try {
+        try {//time for voting
             Thread.sleep(25000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         pool.shutdownNow();
         gameServer.printVoteList();
-        gameServer.sendToAll("spurious vote");
+        gameServer.sendToAll("spurious vote"); // sending for those who did not vote.
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (Handler temp : gameServer.getClients()) {
+        for (Handler temp : gameServer.getClients()) {//todo neveshtan method baraye in dar server.
             temp.setExit(true);
             Handler newHandler = new Handler(temp);
             newHandlers.add(newHandler);

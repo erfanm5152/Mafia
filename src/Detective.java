@@ -1,10 +1,22 @@
 import java.util.Scanner;
 
+/**
+ * The type Detective.
+ *
+ * @author Erfanm5152
+ * @version 0.1
+ */
 public class Detective extends Citizen {
+    /**
+     * Instantiates a new Detective.
+     */
     public Detective() {
         super();
     }
 
+    /**
+     * move of detective in night
+     */
     @Override
     public void run() {
         Handler temp = getHandler();
@@ -28,6 +40,9 @@ public class Detective extends Citizen {
         System.out.println(chosenName + "<------" + toString());
     }
 
+    /**
+     * @return name of the role
+     */
     @Override
     public String toString() {
         return "Detective";
