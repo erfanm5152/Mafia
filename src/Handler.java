@@ -234,7 +234,7 @@ public class Handler implements Runnable {
      *
      * @param exit the exit
      */
-    public void setExit(boolean exit) {
+    public synchronized void setExit(boolean exit) {
         this.exit = exit;
     }
 
