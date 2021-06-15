@@ -648,7 +648,7 @@ public class GameServer {
     }
 
     /**
-     * Remove unconnected plaeyrs.
+     * Remove unconnected players.
      */
     public void removeUnconnected() {
         for (Handler handler : clients) {
@@ -695,6 +695,7 @@ public class GameServer {
                 if (tempPerson instanceof Mafia && tempPerson.isAlive()) {
                     temp.setPerson(new GodFatherSuccessor((Mafia) tempPerson));
                     sendMsg("shoma janeshin GodFather hastid.", temp);
+                    return;
                 }
             }
         }
